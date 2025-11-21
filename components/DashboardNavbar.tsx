@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, History, Settings, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, History, Heart, User, ChevronDown } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DashboardNavbar() {
@@ -13,6 +13,33 @@ export default function DashboardNavbar() {
     const router = useRouter();
     const supabase = createClient();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [userName, setUserName] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchUserName = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // Try to get name from profile
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.full_name) {
+                    setUserName(profile.full_name);
+                } else if (user.user_metadata?.full_name) {
+                    setUserName(user.user_metadata.full_name);
+                } else {
+                    // Fallback to email first part
+                    setUserName(user.email?.split('@')[0] || 'User');
+                }
+            }
+        };
+
+        fetchUserName();
+    }, [supabase]);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -22,7 +49,7 @@ export default function DashboardNavbar() {
     const navItems = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'History', href: '/dashboard/history', icon: History },
-        { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+        { name: 'Saved', href: '/dashboard/saved', icon: Heart },
     ];
 
     return (
@@ -52,13 +79,52 @@ export default function DashboardNavbar() {
                             );
                         })}
                         <div className="h-6 w-px bg-zinc-800" />
-                        <button
-                            onClick={handleSignOut}
-                            className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-red-400 transition-colors"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
-                        </button>
+
+                        {/* Profile Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-semibold text-xs">
+                                    {userName?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <span className="hidden lg:inline">{userName}</span>
+                                <ChevronDown className="w-4 h-4" />
+                            </button>
+
+                            <AnimatePresence>
+                                {isProfileOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden"
+                                    >
+                                        <div className="p-3 border-b border-zinc-800">
+                                            <p className="text-sm font-medium text-white">{userName}</p>
+                                            <p className="text-xs text-zinc-500 truncate">View profile</p>
+                                        </div>
+                                        <Link
+                                            href="/dashboard/settings"
+                                            onClick={() => setIsProfileOpen(false)}
+                                            className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors"
+                                        >
+                                            Settings
+                                        </Link>
+                                        <button
+                                            onClick={() => {
+                                                setIsProfileOpen(false);
+                                                handleSignOut();
+                                            }}
+                                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800 transition-colors"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -66,7 +132,7 @@ export default function DashboardNavbar() {
                         className="md:hidden p-2 text-zinc-400 hover:text-white"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
-                        <Menu className="w-6 h-6" />
+                        <User className="w-6 h-6" />
                     </button>
                 </div>
             </div>
@@ -81,6 +147,16 @@ export default function DashboardNavbar() {
                         className="md:hidden border-t border-zinc-800 bg-black"
                     >
                         <div className="flex flex-col p-4 gap-4">
+                            <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-semibold">
+                                    {userName?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-white">{userName}</p>
+                                    <p className="text-xs text-zinc-500">Signed in</p>
+                                </div>
+                            </div>
+
                             {navItems.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = pathname === item.href;
@@ -97,11 +173,20 @@ export default function DashboardNavbar() {
                                     </Link>
                                 );
                             })}
+
+                            <Link
+                                href="/dashboard/settings"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors"
+                            >
+                                <User className="w-4 h-4" />
+                                Settings
+                            </Link>
+
                             <button
                                 onClick={handleSignOut}
-                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-red-400 transition-colors"
+                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-red-400 hover:bg-zinc-900 transition-colors"
                             >
-                                <LogOut className="w-4 h-4" />
                                 Sign Out
                             </button>
                         </div>

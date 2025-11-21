@@ -41,7 +41,7 @@ export default function ContactPage() {
                         </div>
                         <div className="flex items-center gap-4 text-zinc-300">
                             <div className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center border border-zinc-800">
-                                <MapPin className="w-5 h-5 text-purple-500" />
+                                <MapPin className="w-5 h-5 text-teal-500" />
                             </div>
                             <div>
                                 <div className="text-sm text-zinc-500">Office</div>

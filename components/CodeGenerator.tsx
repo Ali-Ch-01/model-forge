@@ -36,7 +36,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                             className={clsx(
                                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors uppercase",
                                 activeTab === snippet.framework
-                                    ? "bg-indigo-600 text-white"
+                                    ? "bg-cyan-600 text-white"
                                     : "text-zinc-400 hover:text-white hover:bg-zinc-700"
                             )}
                         >

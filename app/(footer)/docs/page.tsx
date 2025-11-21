@@ -12,7 +12,7 @@ export default function DocsPage() {
                 {[
                     { icon: Book, title: "Getting Started", desc: "Everything you need to know to generate your first model architecture.", color: "text-blue-500", hover: "group-hover:text-blue-400" },
                     { icon: Code, title: "Code Generation", desc: "How to customize and export PyTorch, TensorFlow, and Scikit-learn code.", color: "text-emerald-500", hover: "group-hover:text-emerald-400" },
-                    { icon: Layers, title: "Architecture Diagrams", desc: "Understanding the visual components and exporting Mermaid.js diagrams.", color: "text-purple-500", hover: "group-hover:text-purple-400" },
+                    { icon: Layers, title: "Architecture Diagrams", desc: "Understanding the visual components and exporting Mermaid.js diagrams.", color: "text-teal-500", hover: "group-hover:text-teal-400" },
                     { icon: Settings, title: "Advanced Configuration", desc: "Fine-tuning constraints, latency requirements, and hardware targets.", color: "text-orange-500", hover: "group-hover:text-orange-400" }
                 ].map((item, i) => (
                     <motion.div

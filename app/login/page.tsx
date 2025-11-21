@@ -37,14 +37,14 @@ export default function LoginPage() {
         <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
             {/* Background Gradients */}
             <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-500/10 rounded-full blur-[120px]" />
             </div>
 
             <div className="relative z-10 w-full max-w-md">
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 mb-6 text-2xl font-bold">
-                        <Sparkles className="w-6 h-6 text-indigo-400" />
+                        <Sparkles className="w-6 h-6 text-cyan-400" />
                         ModelForge
                     </Link>
                     <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="you@example.com"
                                 required
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 transition-colors"
                             />
                         </div>
 
@@ -85,14 +85,14 @@ export default function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 transition-colors"
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-cyan-600 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-cyan-500 transition-colors shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Signing in...' : (
                                 <>
@@ -105,7 +105,7 @@ export default function LoginPage() {
 
                     <div className="mt-6 text-center text-sm text-zinc-400">
                         Don't have an account?{' '}
-                        <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                        <Link href="/signup" className="text-cyan-400 hover:text-cyan-300 font-medium">
                             Sign up
                         </Link>
                     </div>

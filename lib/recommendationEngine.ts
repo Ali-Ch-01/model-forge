@@ -4,10 +4,27 @@ export type TaskType = 'classification' | 'regression' | 'clustering' | 'nlp' | 
 export type DataType = 'image' | 'text' | 'tabular' | 'audio' | 'video' | 'time_series' | 'multimodal';
 
 export interface UserInput {
+  // Natural language input
   description?: string;
+
+  // Basic classification
   taskType?: TaskType;
   dataType?: DataType;
+
+  // Legacy constraints (keeping for backwards compatibility)
   constraints?: { latency?: string; modelSize?: string };
+
+  // Enhanced structured form fields
+  datasetSize?: 'small' | 'medium' | 'large' | 'very-large';
+  performancePriority?: 'accuracy' | 'speed' | 'balance';
+  deploymentTarget?: 'cloud-gpu' | 'cloud-cpu' | 'edge' | 'mobile' | 'browser';
+  latencyRequirement?: 'realtime' | 'fast' | 'moderate' | 'batch';
+  modelSizeConstraint?: 'tiny' | 'small' | 'medium' | 'large';
+  hardwareBudget?: 'limited' | 'moderate' | 'high-end';
+  trainingDataQuality?: 'labeled' | 'partially-labeled' | 'unlabeled';
+  interpretabilityNeed?: 'critical' | 'important' | 'nice' | 'none';
+  updateFrequency?: 'realtime' | 'daily' | 'weekly' | 'static';
+  domain?: 'healthcare' | 'finance' | 'retail' | 'general';
 }
 
 export interface ModelRecommendation {
@@ -113,6 +130,13 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
               return `${id}["${content}"]`;
             });
           }
+
+          // Fix: Handle nodes after arrows that don't have IDs
+          // Pattern: --> ["Label"] or --> ["Label"](style)
+          processedLine = processedLine.replace(/(-->|---)\s*\[\"([^\"]+)\"\]/g, (match, arrow, content) => {
+            const id = getSafeId(content);
+            return `${arrow} ${id}["${content}"]`;
+          });
 
           // Fix: Handle arrow labels |Label|
           processedLine = processedLine.replace(/\|(.*?)\|/g, (match, content) => {

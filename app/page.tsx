@@ -164,8 +164,8 @@ export default function LandingPage() {
                 icon: Cpu,
                 title: "Architecture Diagrams",
                 desc: "Visual flowcharts of your model's architecture, data flow, and training pipeline.",
-                color: "text-purple-400",
-                bg: "bg-purple-500/10"
+                color: "text-teal-400",
+                bg: "bg-teal-500/10"
               },
               {
                 icon: Rocket,

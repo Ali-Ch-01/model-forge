@@ -145,7 +145,7 @@ export default function StructuredInput({ onSubmit, isLoading }: StructuredInput
 
                             <div className="space-y-3">
                                 <label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
-                                    <Cpu className="w-4 h-4 text-purple-400" />
+                                    <Cpu className="w-4 h-4 text-cyan-400" />
                                     Model Size / Resource
                                 </label>
                                 <div className="grid grid-cols-2 gap-2">
@@ -154,7 +154,7 @@ export default function StructuredInput({ onSubmit, isLoading }: StructuredInput
                                             key={opt}
                                             onClick={() => setInput({ ...input, constraints: { ...input.constraints, modelSize: opt } })}
                                             className={`p-3 rounded-lg border text-sm capitalize transition-all ${input.constraints?.modelSize === opt
-                                                ? 'bg-purple-600/20 border-purple-500 text-purple-400'
+                                                ? 'bg-cyan-600/20 border-cyan-500 text-cyan-400'
                                                 : 'bg-black/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
                                                 }`}
                                         >
