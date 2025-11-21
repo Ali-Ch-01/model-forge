@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Search, ChevronRight, Calendar, ChevronDown, Trash2 } from 'lucide-react';
+import { Clock, Search, Calendar, ChevronDown, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Dashboard from '@/components/Dashboard';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+    const [expandedQueries, setExpandedQueries] = useState<Set<string>>(new Set());
     const supabase = createClient();
 
     useEffect(() => {
@@ -45,53 +46,47 @@ export default function HistoryPage() {
     };
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
-        e.stopPropagation(); // Prevent expanding the item when clicking delete
+        e.stopPropagation();
+        e.preventDefault();
 
-        const itemToDelete = history.find(item => item.id === id);
-        if (!itemToDelete) return;
+        console.log('Delete clicked for:', id);
 
-        // Optimistic update
-        setHistory(history.filter(item => item.id !== id));
+        const previousHistory = [...history];
+        setHistory(prev => prev.filter(item => item.id !== id));
         if (selectedItem?.id === id) setSelectedItem(null);
 
-        toast.promise(
-            async () => {
-                const { error } = await supabase
-                    .from('query_history')
-                    .delete()
-                    .eq('id', id);
-                if (error) throw error;
-            },
-            {
-                loading: 'Deleting...',
-                success: 'History item deleted',
-                error: (err) => {
-                    // Revert on error
-                    setHistory(prev => [itemToDelete, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-                    return 'Failed to delete item';
-                },
-                action: {
-                    label: 'Undo',
-                    onClick: async () => {
-                        // Restore logic: Re-insert the item
-                        const { error } = await supabase.from('query_history').insert({
-                            id: itemToDelete.id,
-                            user_id: (await supabase.auth.getUser()).data.user?.id,
-                            query_text: itemToDelete.query_text,
-                            recommended_models: itemToDelete.recommended_models,
-                            created_at: itemToDelete.created_at
-                        });
+        try {
+            const { data, error } = await supabase
+                .from('query_history')
+                .delete()
+                .eq('id', id);
 
-                        if (!error) {
-                            setHistory(prev => [itemToDelete, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-                            toast.success('Restored history item');
-                        } else {
-                            toast.error('Failed to restore item');
-                        }
-                    }
-                }
+            console.log('Delete response:', { data, error });
+
+            if (error) {
+                console.error('Supabase delete error:', error);
+                toast.error(`Delete failed: ${error.message}`);
+                throw error;
             }
-        );
+            console.log('Delete successful');
+            toast.success('History item deleted');
+        } catch (error: any) {
+            console.error('Error deleting history:', error);
+            setHistory(previousHistory);
+            toast.error(`Failed: ${error?.message || 'Unknown error'}`);
+        }
+    };
+
+    const toggleQueryExpansion = (id: string) => {
+        setExpandedQueries(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
     };
 
     return (
@@ -116,66 +111,89 @@ export default function HistoryPage() {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {history.map((item, i) => (
-                        <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="group bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all"
-                        >
-                            <div
-                                onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
-                                className="p-6 flex items-start justify-between gap-4 cursor-pointer"
-                            >
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono">
-                                            {new Date(item.created_at).toLocaleDateString()}
-                                        </span>
-                                        <span className="text-zinc-500 text-xs flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(item.created_at).toLocaleTimeString()}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-lg font-medium text-white mb-2 group-hover:text-blue-400 transition-colors">
-                                        {item.query_text || "Untitled Query"}
-                                    </h3>
-                                    <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                        {Array.isArray(item.recommended_models) ? item.recommended_models.length : 0} models recommended
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={(e) => handleDelete(e, item.id)}
-                                        className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
-                                        title="Delete history item"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
-                                    <button className={`p-2 rounded-lg bg-zinc-800 text-zinc-400 transition-all ${selectedItem?.id === item.id ? 'bg-blue-600 text-white rotate-180' : 'group-hover:bg-zinc-700'}`}>
-                                        <ChevronDown className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
+                    {history.map((item, i) => {
+                        const isExpanded = expandedQueries.has(item.id);
+                        const isLongQuery = item.query_text && item.query_text.length > 100;
 
-                            <AnimatePresence>
-                                {selectedItem?.id === item.id && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="border-t border-zinc-800 bg-black/20"
+                        return (
+                            <motion.div
+                                key={item.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.05 }}
+                                className="group bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all"
+                            >
+                                <div className="p-6 flex items-start justify-between gap-4">
+                                    <div
+                                        onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
+                                        className="flex-1 min-w-0 cursor-pointer"
                                     >
-                                        <div className="p-6">
-                                            <Dashboard recommendations={item.recommended_models} />
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono">
+                                                {new Date(item.created_at).toLocaleDateString()}
+                                            </span>
+                                            <span className="text-zinc-500 text-xs flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(item.created_at).toLocaleTimeString()}
+                                            </span>
                                         </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    ))}
+
+                                        <div className="mb-2">
+                                            <h3 className={`text-lg font-medium text-white transition-colors group-hover:text-blue-400 ${!isExpanded ? 'line-clamp-1' : ''}`}>
+                                                {item.query_text || "Untitled Query"}
+                                            </h3>
+                                            {isLongQuery && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleQueryExpansion(item.id);
+                                                    }}
+                                                    className="text-xs text-blue-400 hover:text-blue-300 mt-1 font-medium"
+                                                >
+                                                    {isExpanded ? 'Show Less' : 'Show More'}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-sm text-zinc-400">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                            {Array.isArray(item.recommended_models) ? item.recommended_models.length : 0} models recommended
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                                        <button
+                                            onClick={(e) => handleDelete(e, item.id)}
+                                            className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                            title="Delete history item"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
+                                            className={`p-2 rounded-lg transition-all ${selectedItem?.id === item.id ? 'bg-blue-600 text-white rotate-180' : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700'}`}
+                                        >
+                                            <ChevronDown className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <AnimatePresence>
+                                    {selectedItem?.id === item.id && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="border-t border-zinc-800 bg-black/20"
+                                        >
+                                            <div className="p-6">
+                                                <Dashboard recommendations={item.recommended_models} />
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             )}
         </div>

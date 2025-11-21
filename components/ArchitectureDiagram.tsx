@@ -21,6 +21,10 @@ export default function ArchitectureDiagram({ chart }: ArchitectureDiagramProps)
                     securityLevel: 'loose',
                     fontFamily: 'inherit',
                 });
+                // Suppress default error rendering which appends to body
+                mermaid.parseError = (err) => {
+                    console.error('Mermaid parse error (suppressed):', err);
+                };
                 setIsMermaidLoaded(true);
             } catch (e) {
                 console.error('Failed to load mermaid', e);
