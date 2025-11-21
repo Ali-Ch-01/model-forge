@@ -1,77 +1,199 @@
--- Create a table for storing model recommendations
-create table public.models (
-  id uuid default gen_random_uuid() primary key,
-  name text not null,
-  description text,
-  pros text[],
-  cons text[],
-  suitability_score integer,
-  architecture_diagram text, -- Mermaid code
-  training_code jsonb, -- Array of objects {framework, code}
-  mlops_best_practices text[],
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- Extended Schema for ModelForge User Management
+
+-- ====================================
+-- User Profile Table
+-- ====================================
+-- Store additional user information beyond auth.users
+create table public.profiles (
+  id uuid references auth.users(id) primary key,
+  email text,
+  full_name text,
+  avatar_url text,
+  company text,
+  role text, -- e.g., 'Data Scientist', 'ML Engineer', 'Student'
+  bio text,
+  subscription_tier text default 'free', -- 'free', 'pro', 'enterprise'
+  credits_remaining integer default 100, -- For usage limits
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Create a table for storing user queries
-create table public.queries (
+-- Enable RLS
+alter table public.profiles enable row level security;
+
+-- Policies for profiles
+create policy "Users can view their own profile"
+  on public.profiles for select
+  using (auth.uid() = id);
+
+create policy "Users can update their own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+-- Automatically create profile on user signup
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, new.raw_user_meta_data->>'full_name');
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- ====================================
+-- Saved Models (Favorites)
+-- ====================================
+create table public.saved_models (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id), -- Optional if we allow anonymous
-  input_text text,
-  input_structured jsonb,
-  recommended_model_ids uuid[], -- Array of model IDs
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  user_id uuid references auth.users(id) on delete cascade not null,
+  model_id uuid references public.models(id) on delete cascade not null,
+  notes text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(user_id, model_id) -- Prevent duplicate saves
 );
 
--- Enable Row Level Security (RLS)
-alter table public.models enable row level security;
-alter table public.queries enable row level security;
+alter table public.saved_models enable row level security;
 
--- Create policies
--- Allow anyone to read models
-create policy "Allow public read access to models"
-  on public.models for select
-  using (true);
-
--- Allow authenticated users to insert queries
-create policy "Allow auth users to insert queries"
-  on public.queries for insert
-  with check (auth.uid() = user_id);
-
--- Allow users to read their own queries
-create policy "Allow users to read own queries"
-  on public.queries for select
+create policy "Users can view their saved models"
+  on public.saved_models for select
   using (auth.uid() = user_id);
 
--- Seed some initial data (optional, based on our mock data)
-insert into public.models (name, description, pros, cons, suitability_score, architecture_diagram, training_code, mlops_best_practices)
-values
-(
-  'ResNet-50',
-  'A widely used convolutional neural network for image classification.',
-  ARRAY['Good balance of accuracy and speed', 'Pre-trained weights available', 'Easy to fine-tune'],
-  ARRAY['Not the state-of-the-art accuracy', 'Can be heavy for edge devices'],
-  95,
-  'graph TD\n    A[Input Image] --> B[Conv1]\n    B --> C[Pooling]\n    C --> D[ResBlock 1]\n    D --> E[ResBlock 2]\n    E --> F[ResBlock 3]\n    F --> G[ResBlock 4]\n    G --> H[Avg Pooling]\n    H --> I[FC Layer]\n    I --> J[Output Class]',
-  '[{"framework": "pytorch", "code": "import torch\nimport torchvision.models as models\n\n# Load pre-trained ResNet50\nmodel = models.resnet50(pretrained=True)\n\n# Modify the last layer for your number of classes\nnum_classes = 10\nmodel.fc = torch.nn.Linear(model.fc.in_features, num_classes)\n\n# Define loss and optimizer\ncriterion = torch.nn.CrossEntropyLoss()\noptimizer = torch.optim.Adam(model.parameters(), lr=0.001)"}, {"framework": "tensorflow", "code": "import tensorflow as tf\nfrom tensorflow.keras.applications import ResNet50\n\n# Load pre-trained ResNet50\nbase_model = ResNet50(weights=''imagenet'', include_top=False, input_shape=(224, 224, 3))\n\n# Add custom layers\nx = base_model.output\nx = tf.keras.layers.GlobalAveragePooling2D()(x)\noutput = tf.keras.layers.Dense(10, activation=''softmax'')(x)\n\nmodel = tf.keras.Model(inputs=base_model.input, outputs=output)\n\nmodel.compile(optimizer=''adam'', loss=''categorical_crossentropy'', metrics=[''accuracy''])"}]'::jsonb,
-  ARRAY['Use Data Version Control (DVC) for image datasets', 'Track experiments with MLflow or Weights & Biases', 'Quantize model for mobile deployment using ONNX']
-),
-(
-  'BERT Base',
-  'Bidirectional Encoder Representations from Transformers for NLP tasks.',
-  ARRAY['State-of-the-art for many NLP tasks', 'Contextual understanding', 'Huge ecosystem'],
-  ARRAY['Computationally expensive', 'Slow inference speed'],
-  92,
-  'graph TD\n    A[Input Text] --> B[Tokenizer]\n    B --> C[Embedding Layer]\n    C --> D[Transformer Encoder 1]\n    D --> E[Transformer Encoder 2]\n    E --> F[...]\n    F --> G[Transformer Encoder 12]\n    G --> H[Pooling]\n    H --> I[Classifier Head]\n    I --> J[Output]',
-  '[{"framework": "pytorch", "code": "from transformers import BertTokenizer, BertForSequenceClassification\nimport torch\n\ntokenizer = BertTokenizer.from_pretrained(''bert-base-uncased'')\nmodel = BertForSequenceClassification.from_pretrained(''bert-base-uncased'', num_labels=2)\n\ninputs = tokenizer(\"Hello, my dog is cute\", return_tensors=\"pt\")\nlabels = torch.tensor([1]).unsqueeze(0)  # Batch size 1\noutputs = model(**inputs, labels=labels)\nloss = outputs.loss\nlogits = outputs.logits"}]'::jsonb,
-  ARRAY['Use Hugging Face Model Hub for versioning', 'Implement dynamic padding for efficient batching', 'Monitor token usage and latency in production']
-),
-(
-  'XGBoost',
-  'Gradient boosting library for tabular data.',
-  ARRAY['Extremely fast and efficient', 'Handles missing values well', 'High performance on structured data'],
-  ARRAY['Can overfit if not tuned', 'Not suitable for unstructured data (images/audio)'],
-  98,
-  'graph TD\n    A[Input Data] --> B[Decision Tree 1]\n    A --> C[Decision Tree 2]\n    A --> D[...]\n    A --> E[Decision Tree N]\n    B --> F[Weighted Sum]\n    C --> F\n    D --> F\n    E --> F\n    F --> G[Prediction]',
-  '[{"framework": "sklearn", "code": "import xgboost as xgb\nfrom sklearn.model_selection import train_test_split\n\n# Load data\nX, y = load_data()\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)\n\n# Train model\nmodel = xgb.XGBClassifier(use_label_encoder=False)\nmodel.fit(X_train, y_train)\n\n# Evaluate\naccuracy = model.score(X_test, y_test)\nprint(f\"Accuracy: {accuracy}\")"}]'::jsonb,
-  ARRAY['Log feature importance charts', 'Use SHAP values for explainability', 'Save models in JSON/UBJSON for interoperability']
+create policy "Users can save models"
+  on public.saved_models for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can delete their saved models"
+  on public.saved_models for delete
+  using (auth.uid() = user_id);
+
+-- ====================================
+-- Query History (Enhanced)
+-- ====================================
+create table public.query_history (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  query_text text,
+  query_type text, -- 'natural_language' or 'structured'
+  inferred_data_type text, -- 'image', 'text', 'tabular', 'audio'
+  inferred_task_type text, -- 'classification', 'regression', etc.
+  recommended_models jsonb, -- Array of model IDs with scores
+  execution_time_ms integer,
+  hf_inference_success boolean default true,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+alter table public.query_history enable row level security;
+
+create policy "Users can view their own query history"
+  on public.query_history for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert query history"
+  on public.query_history for insert
+  with check (auth.uid() = user_id);
+
+-- ====================================
+-- User Preferences
+-- ====================================
+create table public.user_preferences (
+  user_id uuid references auth.users(id) on delete cascade primary key,
+  preferred_frameworks text[] default ARRAY['pytorch'], -- ['pytorch', 'tensorflow', 'sklearn']
+  preferred_deployment text default 'cloud', -- 'cloud', 'edge', 'mobile'
+  notifications_enabled boolean default true,
+  theme text default 'dark', -- 'dark', 'light'
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.user_preferences enable row level security;
+
+create policy "Users can view their own preferences"
+  on public.user_preferences for select
+  using (auth.uid() = user_id);
+
+create policy "Users can update their own preferences"
+  on public.user_preferences for update
+  using (auth.uid() = user_id);
+
+create policy "Users can insert their own preferences"
+  on public.user_preferences for insert
+  with check (auth.uid() = user_id);
+
+-- ====================================
+-- Model Feedback
+-- ====================================
+-- Allow users to rate/review recommended models
+create table public.model_feedback (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  model_id uuid references public.models(id) on delete cascade not null,
+  rating integer check (rating >= 1 and rating <= 5),
+  feedback_text text,
+  was_helpful boolean,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.model_feedback enable row level security;
+
+create policy "Users can view all feedback"
+  on public.model_feedback for select
+  using (true);
+
+create policy "Users can submit feedback"
+  on public.model_feedback for insert
+  with check (auth.uid() = user_id);
+
+-- ====================================
+-- Usage Analytics
+-- ====================================
+create table public.usage_stats (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  event_type text not null, -- 'query', 'save_model', 'export_code', etc.
+  event_metadata jsonb,
+  timestamp timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.usage_stats enable row level security;
+
+create policy "Users can insert their own usage stats"
+  on public.usage_stats for insert
+  with check (auth.uid() = user_id);
+
+-- Only admins can view all stats (you'd need to implement admin role check)
+create policy "Users can view their own usage stats"
+  on public.usage_stats for select
+  using (auth.uid() = user_id);
+
+-- ====================================
+-- Indexes for Performance
+-- ====================================
+create index idx_profiles_email on public.profiles(email);
+create index idx_saved_models_user on public.saved_models(user_id);
+create index idx_query_history_user on public.query_history(user_id);
+create index idx_query_history_created on public.query_history(created_at desc);
+create index idx_model_feedback_model on public.model_feedback(model_id);
+create index idx_usage_stats_user_time on public.usage_stats(user_id, timestamp desc);
+
+-- ====================================
+-- Helper Views
+-- ====================================
+-- View for user dashboard stats
+create or replace view user_dashboard_stats as
+select 
+  p.id as user_id,
+  p.full_name,
+  p.subscription_tier,
+  p.credits_remaining,
+  count(distinct qh.id) as total_queries,
+  count(distinct sm.id) as saved_models_count,
+  count(distinct mf.id) as feedback_given_count
+from profiles p
+left join query_history qh on p.id = qh.user_id
+left join saved_models sm on p.id = sm.user_id
+left join model_feedback mf on p.id = mf.user_id
+group by p.id, p.full_name, p.subscription_tier, p.credits_remaining;
