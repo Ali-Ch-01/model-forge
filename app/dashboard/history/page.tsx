@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { motion } from 'framer-motion';
-import { Clock, Search, ChevronRight, Calendar } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, Search, ChevronRight, Calendar, ChevronDown, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import Dashboard from '@/components/Dashboard';
 
 interface HistoryItem {
     id: string;
@@ -16,29 +17,51 @@ interface HistoryItem {
 export default function HistoryPage() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
     const supabase = createClient();
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-
-            const { data, error } = await supabase
-                .from('query_history')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error fetching history:', error);
-            } else {
-                setHistory(data || []);
-            }
-            setIsLoading(false);
-        };
-
         fetchHistory();
     }, []);
+
+    const fetchHistory = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+            .from('query_history')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching history:', error);
+        } else {
+            setHistory(data || []);
+        }
+        setIsLoading(false);
+    };
+
+    const handleDelete = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation(); // Prevent expanding the item when clicking delete
+        if (!confirm('Are you sure you want to delete this history item?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('query_history')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            // Remove from local state
+            setHistory(history.filter(item => item.id !== id));
+            if (selectedItem?.id === id) setSelectedItem(null);
+        } catch (error) {
+            console.error('Error deleting history:', error);
+            alert('Failed to delete history item');
+        }
+    };
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -68,9 +91,12 @@ export default function HistoryPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.05 }}
-                            className="group p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-blue-500/30 transition-all"
+                            className="group bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all"
                         >
-                            <div className="flex items-start justify-between gap-4">
+                            <div
+                                onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
+                                className="p-6 flex items-start justify-between gap-4 cursor-pointer"
+                            >
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono">
@@ -89,10 +115,34 @@ export default function HistoryPage() {
                                         {Array.isArray(item.recommended_models) ? item.recommended_models.length : 0} models recommended
                                     </div>
                                 </div>
-                                <button className="p-2 rounded-lg bg-zinc-800 text-zinc-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={(e) => handleDelete(e, item.id)}
+                                        className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                        title="Delete history item"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                    <button className={`p-2 rounded-lg bg-zinc-800 text-zinc-400 transition-all ${selectedItem?.id === item.id ? 'bg-blue-600 text-white rotate-180' : 'group-hover:bg-zinc-700'}`}>
+                                        <ChevronDown className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
+
+                            <AnimatePresence>
+                                {selectedItem?.id === item.id && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="border-t border-zinc-800 bg-black/20"
+                                    >
+                                        <div className="p-6">
+                                            <Dashboard recommendations={item.recommended_models} />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
                     ))}
                 </div>

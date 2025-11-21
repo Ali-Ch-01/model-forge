@@ -69,17 +69,74 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
     }
 
     // Map the response to our ModelRecommendation interface
-    const recommendations: ModelRecommendation[] = (responseData.recommendations || []).map((rec: any, index: number) => ({
-      id: `hf-gen-${Date.now()}-${index}`,
-      name: rec.name || "Custom Model",
-      description: rec.description || "No description provided.",
-      pros: rec.pros || [],
-      cons: rec.cons || [],
-      suitabilityScore: 90 + Math.floor(Math.random() * 10), // High score for custom solutions
-      architectureDiagram: rec.architectureDiagram || "graph TD\nA[Input] --> B[Model] --> C[Output]",
-      trainingCode: [{ framework: 'python', code: rec.trainingCode || "# Code generation failed" }],
-      mlopsBestPractices: rec.mlopsBestPractices || ["Use version control", "Monitor metrics"],
-    }));
+    const recommendations: ModelRecommendation[] = (responseData.recommendations || []).map((rec: any, index: number) => {
+      let cleanDiagram = rec.architectureDiagram || "graph TD\nA[Input] --> B[Model] --> C[Output]";
+
+      // Robust Mermaid Sanitizer
+      const sanitizeMermaid = (code: string) => {
+        let lines = code.split('\n');
+        let nodeMap = new Map<string, string>();
+        let nodeCounter = 0;
+
+        const getSafeId = (label: string) => {
+          const cleanLabel = label.trim();
+          if (nodeMap.has(cleanLabel)) return nodeMap.get(cleanLabel);
+          const id = `Node${++nodeCounter}`;
+          nodeMap.set(cleanLabel, id);
+          return id;
+        };
+
+        const sanitizedLines = lines.map(line => {
+          // Skip graph declaration or empty lines
+          if (line.trim().startsWith('graph') || line.trim() === '') return line;
+
+          // Pass 1: Quote all labels inside []
+          // A[Text] -> A["Text"]
+          // [Text] -> ["Text"]
+          let quotedLine = line.replace(/\[([^"\]]+)\]/g, (match, content) => {
+            return `["${content.replace(/"/g, "'")}"]`; // Escape quotes if any
+          });
+
+          // Pass 2: Assign IDs to bare nodes ["Text"]
+          // We look for ["Text"] that is NOT preceded by a Node ID
+          // A Node ID is a sequence of alphanumeric chars
+          quotedLine = quotedLine.replace(/([a-zA-Z0-9_]+)?\["([^"]+)"\]/g, (match, id, content) => {
+            if (id) {
+              // It has an ID, return as is (already quoted in Pass 1)
+              return match;
+            } else {
+              // No ID, generate one
+              const safeId = getSafeId(content);
+              return `${safeId}["${content}"]`;
+            }
+          });
+
+          return quotedLine;
+        });
+
+        return sanitizedLines.join('\n');
+      };
+
+      try {
+        cleanDiagram = sanitizeMermaid(cleanDiagram);
+      } catch (e) {
+        console.error("Mermaid sanitization failed:", e);
+        // Fallback to simple diagram
+        cleanDiagram = "graph TD\nA[Input] --> B[Model] --> C[Output]";
+      }
+
+      return {
+        id: `hf-gen-${Date.now()}-${index}`,
+        name: rec.name || "Custom Model",
+        description: rec.description || "No description provided.",
+        pros: rec.pros || [],
+        cons: rec.cons || [],
+        suitabilityScore: 90 + Math.floor(Math.random() * 10), // High score for custom solutions
+        architectureDiagram: cleanDiagram,
+        trainingCode: [{ framework: 'python', code: rec.trainingCode || "# Code generation failed" }],
+        mlopsBestPractices: rec.mlopsBestPractices || ["Use version control", "Monitor metrics"],
+      };
+    });
 
     return recommendations;
 

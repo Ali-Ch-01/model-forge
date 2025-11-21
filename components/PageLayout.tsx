@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Footer from '@/components/Footer';
 
@@ -25,9 +25,6 @@ export default function PageLayout({ title, subtitle, children }: PageLayoutProp
         {/* Header */}
         <header className="container mx-auto px-4 py-6 flex items-center justify-between border-b border-white/5 backdrop-blur-sm sticky top-0 z-50">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
             ModelForge
           </Link>
           <Link href="/" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
