@@ -16,6 +16,7 @@ export interface ModelRecommendation {
   description: string;
   pros: string[];
   cons: string[];
+  use_cases: string[];
   suitabilityScore: number;
   architectureDiagram: string;
   trainingCode: any;
@@ -74,6 +75,9 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
 
       // Robust Mermaid Sanitizer
       const sanitizeMermaid = (code: string) => {
+        // Remove any markdown code block syntax if present
+        code = code.replace(/```mermaid/g, '').replace(/```/g, '').trim();
+
         let lines = code.split('\n');
         let nodeMap = new Map<string, string>();
         let nodeCounter = 0;
@@ -87,31 +91,36 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
         };
 
         const sanitizedLines = lines.map(line => {
+          let trimmedLine = line.trim();
           // Skip graph declaration or empty lines
-          if (line.trim().startsWith('graph') || line.trim() === '') return line;
+          if (trimmedLine.startsWith('graph') || trimmedLine === '') return trimmedLine;
 
-          // Pass 1: Quote all labels inside []
-          // A[Text] -> A["Text"]
-          // [Text] -> ["Text"]
-          let quotedLine = line.replace(/\[([^"\]]+)\]/g, (match, content) => {
-            return `["${content.replace(/"/g, "'")}"]`; // Escape quotes if any
+          // Fix: Ensure labels in brackets are quoted and don't contain newlines
+          // Regex to find content in brackets []
+          let processedLine = trimmedLine.replace(/\[(.*?)\]/g, (match, content) => {
+            // Remove newlines and extra spaces from content
+            const cleanContent = content.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            // Escape quotes
+            const escapedContent = cleanContent.replace(/"/g, "'");
+            return `["${escapedContent}"]`;
           });
 
-          // Pass 2: Assign IDs to bare nodes ["Text"]
-          // We look for ["Text"] that is NOT preceded by a Node ID
-          // A Node ID is a sequence of alphanumeric chars
-          quotedLine = quotedLine.replace(/([a-zA-Z0-9_]+)?\["([^"]+)"\]/g, (match, id, content) => {
-            if (id) {
-              // It has an ID, return as is (already quoted in Pass 1)
-              return match;
-            } else {
-              // No ID, generate one
-              const safeId = getSafeId(content);
-              return `${safeId}["${content}"]`;
-            }
+          // Fix: Ensure IDs are valid. If a node is just ["Label"], give it an ID.
+          // Look for lines that start with ["Label"] (no ID preceding)
+          if (processedLine.startsWith('["')) {
+            processedLine = processedLine.replace(/^\["([^"]+)"\]/, (match, content) => {
+              const id = getSafeId(content);
+              return `${id}["${content}"]`;
+            });
+          }
+
+          // Fix: Handle arrow labels |Label|
+          processedLine = processedLine.replace(/\|(.*?)\|/g, (match, content) => {
+            const cleanContent = content.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            return `|"${cleanContent}"|`;
           });
 
-          return quotedLine;
+          return processedLine;
         });
 
         return sanitizedLines.join('\n');
@@ -131,7 +140,8 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
         description: rec.description || "No description provided.",
         pros: rec.pros || [],
         cons: rec.cons || [],
-        suitabilityScore: 90 + Math.floor(Math.random() * 10), // High score for custom solutions
+        use_cases: rec.use_cases || [],
+        suitabilityScore: rec.suitabilityScore || (90 + Math.floor(Math.random() * 10)), // High score for custom solutions
         architectureDiagram: cleanDiagram,
         trainingCode: [{ framework: 'python', code: rec.trainingCode || "# Code generation failed" }],
         mlopsBestPractices: rec.mlopsBestPractices || ["Use version control", "Monitor metrics"],
@@ -149,6 +159,7 @@ export async function getRecommendations(input: UserInput): Promise<ModelRecomme
       description: 'Failed to connect to ModelForge AI backend. Please ensure the Space is running and accessible.',
       pros: [],
       cons: [],
+      use_cases: [],
       suitabilityScore: 0,
       architectureDiagram: 'graph TD\nA[Error] --> B[Check Connection]',
       trainingCode: [],

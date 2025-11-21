@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Search, ChevronRight, Calendar, ChevronDown, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Dashboard from '@/components/Dashboard';
+import { toast } from 'sonner';
 
 interface HistoryItem {
     id: string;
@@ -36,6 +37,7 @@ export default function HistoryPage() {
 
         if (error) {
             console.error('Error fetching history:', error);
+            toast.error('Failed to load history');
         } else {
             setHistory(data || []);
         }
@@ -44,23 +46,52 @@ export default function HistoryPage() {
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation(); // Prevent expanding the item when clicking delete
-        if (!confirm('Are you sure you want to delete this history item?')) return;
 
-        try {
-            const { error } = await supabase
-                .from('query_history')
-                .delete()
-                .eq('id', id);
+        const itemToDelete = history.find(item => item.id === id);
+        if (!itemToDelete) return;
 
-            if (error) throw error;
+        // Optimistic update
+        setHistory(history.filter(item => item.id !== id));
+        if (selectedItem?.id === id) setSelectedItem(null);
 
-            // Remove from local state
-            setHistory(history.filter(item => item.id !== id));
-            if (selectedItem?.id === id) setSelectedItem(null);
-        } catch (error) {
-            console.error('Error deleting history:', error);
-            alert('Failed to delete history item');
-        }
+        toast.promise(
+            async () => {
+                const { error } = await supabase
+                    .from('query_history')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+            },
+            {
+                loading: 'Deleting...',
+                success: 'History item deleted',
+                error: (err) => {
+                    // Revert on error
+                    setHistory(prev => [itemToDelete, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+                    return 'Failed to delete item';
+                },
+                action: {
+                    label: 'Undo',
+                    onClick: async () => {
+                        // Restore logic: Re-insert the item
+                        const { error } = await supabase.from('query_history').insert({
+                            id: itemToDelete.id,
+                            user_id: (await supabase.auth.getUser()).data.user?.id,
+                            query_text: itemToDelete.query_text,
+                            recommended_models: itemToDelete.recommended_models,
+                            created_at: itemToDelete.created_at
+                        });
+
+                        if (!error) {
+                            setHistory(prev => [itemToDelete, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+                            toast.success('Restored history item');
+                        } else {
+                            toast.error('Failed to restore item');
+                        }
+                    }
+                }
+            }
+        );
     };
 
     return (

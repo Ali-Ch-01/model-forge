@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, LayoutDashboard, History, Settings, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, History, Settings, LogOut, Menu } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -31,9 +31,6 @@ export default function DashboardNavbar() {
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-                        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-white" />
-                        </div>
                         <span>ModelForge</span>
                     </Link>
 

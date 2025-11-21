@@ -19,9 +19,6 @@ export default function LandingPage() {
         {/* Header */}
         <header className="container mx-auto px-4 py-6 flex items-center justify-between border-b border-white/5 backdrop-blur-sm sticky top-0 z-50">
           <div className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
             ModelForge
           </div>
           <div className="flex items-center gap-4">
@@ -56,19 +53,19 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-xl text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-              The AI-powered architect for your ML projects. Describe your problem, and get a 
+              The AI-powered architect for your ML projects. Describe your problem, and get a
               production-ready solution with architecture diagrams, code, and MLOps pipelines instantly.
             </p>
 
             {/* Problem Description Box (Interactive Mock) */}
             <div className="max-w-2xl mx-auto bg-zinc-900/50 backdrop-blur border border-zinc-800 rounded-2xl p-2 pl-4 flex items-center gap-4 mb-12 shadow-2xl shadow-blue-900/20 ring-1 ring-white/10">
               <Search className="w-5 h-5 text-zinc-500" />
-              <input 
-                type="text" 
-                placeholder="e.g., 'Detect anomalies in real-time sensor data...'" 
+              <input
+                type="text"
+                placeholder="e.g., 'Detect anomalies in real-time sensor data...'"
                 className="bg-transparent border-none outline-none flex-1 text-zinc-200 placeholder-zinc-600 h-12"
               />
-              <Link 
+              <Link
                 href="/signup"
                 className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
               >
