@@ -22,22 +22,26 @@ export default function Dashboard({ recommendations }: DashboardProps) {
     return (
         <div className="w-full max-w-7xl mx-auto px-4 pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Model List */}
+                {/* Left Column: Model Cards + MLOps Panel */}
                 <div className="lg:col-span-1 space-y-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">Recommended Models</h2>
                     <div className="space-y-4">
                         {recommendations.map((model) => (
                             <ModelCard
                                 key={model.id}
                                 model={model}
-                                isSelected={model.id === selectedModelId}
+                                isSelected={model.id === selectedModel.id}
                                 onClick={() => setSelectedModelId(model.id)}
                             />
                         ))}
                     </div>
+
+                    {/* MLOps Panel - now in left column */}
+                    <section className="mt-6">
+                        <MLOpsPanel practices={selectedModel.mlopsBestPractices} />
+                    </section>
                 </div>
 
-                {/* Right Column: Details */}
+                {/* Right Column: Architecture & Code */}
                 <div className="lg:col-span-2 space-y-8">
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -50,19 +54,14 @@ export default function Dashboard({ recommendations }: DashboardProps) {
                         >
                             {/* Architecture Diagram */}
                             <section>
-                                <h3 className="text-lg font-medium text-zinc-300 mb-3">Architecture Diagram</h3>
+                                <h3 className="text-lg font-semibold text-zinc-300 mb-3">Architecture Diagram</h3>
                                 <ArchitectureDiagram chart={selectedModel.architectureDiagram} />
                             </section>
 
                             {/* Code Generator */}
                             <section>
-                                <h3 className="text-lg font-medium text-zinc-300 mb-3">Training Code Boilerplate</h3>
+                                <h3 className="text-lg font-semibold text-zinc-300 mb-3">Training Code Boilerplate</h3>
                                 <CodeGenerator codeSnippets={selectedModel.trainingCode} />
-                            </section>
-
-                            {/* MLOps Panel */}
-                            <section>
-                                <MLOpsPanel practices={selectedModel.mlopsBestPractices} />
                             </section>
                         </motion.div>
                     </AnimatePresence>

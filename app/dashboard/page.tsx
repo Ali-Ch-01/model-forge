@@ -1,13 +1,13 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import InputSection from '@/components/InputSection';
 import Dashboard from '@/components/Dashboard';
 import { UserInput, ModelRecommendation, getRecommendations } from '@/lib/recommendationEngine';
-import { Save, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
@@ -33,30 +33,32 @@ export default function DashboardPage() {
         }
     };
 
-    const handleSaveHistory = async () => {
-        if (!recommendations.length) return;
+    // Auto-save to history when recommendations are generated
+    useEffect(() => {
+        const saveToHistory = async () => {
+            if (!recommendations.length || !lastQuery) return;
 
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                toast.error('Please sign in to save history');
-                return;
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return; // Silent fail if not logged in
+
+                const { error } = await supabase.from('query_history').insert({
+                    user_id: user.id,
+                    query_text: lastQuery,
+                    recommended_models: recommendations,
+                    hf_inference_success: true
+                });
+
+                if (error) {
+                    console.error('Error auto-saving history:', error);
+                }
+            } catch (error) {
+                console.error('Error auto-saving history:', error);
             }
+        };
 
-            const { error } = await supabase.from('query_history').insert({
-                user_id: user.id,
-                query_text: lastQuery || recommendations[0].description,
-                recommended_models: recommendations,
-                hf_inference_success: true
-            });
-
-            if (error) throw error;
-            toast.success('Saved to history!');
-        } catch (error) {
-            console.error('Error saving history:', error);
-            toast.error('Failed to save history');
-        }
-    };
+        saveToHistory();
+    }, [recommendations, lastQuery]);
 
     const handleExportJSON = () => {
         if (!recommendations.length) return;
@@ -238,7 +240,8 @@ export default function DashboardPage() {
                     <div className="mt-20 animate-in fade-in slide-in-from-bottom-10 duration-700">
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-2xl font-bold">Recommendations</h2>
-                            <div className="flex gap-3">
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm font-bold text-zinc-300">Download:</span>
                                 <div className="flex items-center bg-zinc-900 rounded-lg border border-zinc-800 p-1">
                                     <button
                                         onClick={handleExportPDF}
@@ -261,13 +264,6 @@ export default function DashboardPage() {
                                         JSON
                                     </button>
                                 </div>
-                                <button
-                                    onClick={handleSaveHistory}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-lg shadow-blue-900/20"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    Save to History
-                                </button>
                             </div>
                         </div>
                         {recommendations.length > 0 ? (

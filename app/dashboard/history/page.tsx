@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Search, Calendar, ChevronDown, Trash2 } from 'lucide-react';
+import { Clock, Search, Calendar, ChevronDown, Trash2, Download } from 'lucide-react';
 import Link from 'next/link';
 import Dashboard from '@/components/Dashboard';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 
 interface HistoryItem {
     id: string;
@@ -89,6 +90,73 @@ export default function HistoryPage() {
         });
     };
 
+    const handleExport = (item: HistoryItem, format: 'pdf' | 'md' | 'json') => {
+        const recommendations = item.recommended_models || [];
+
+        if (format === 'json') {
+            const dataStr = JSON.stringify({
+                query: item.query_text,
+                date: item.created_at,
+                recommendations
+            }, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `history-${new Date(item.created_at).toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            toast.success('Exported as JSON');
+        } else if (format === 'md') {
+            let mdContent = `# ModelForge Query History\n\n`;
+            mdContent += `**Date:** ${new Date(item.created_at).toLocaleDateString()}\n`;
+            mdContent += `**Query:** ${item.query_text}\n\n`;
+
+            recommendations.forEach((rec: any, index: number) => {
+                mdContent += `## ${index + 1}. ${rec.name}\n\n`;
+                mdContent += `**Suitability Score:** ${rec.suitabilityScore}%\n\n`;
+                mdContent += `### Description\n${rec.description}\n\n`;
+                if (rec.pros?.length) mdContent += `### Pros\n${rec.pros.map((p: string) => `- ${p}`).join('\n')}\n\n`;
+                if (rec.cons?.length) mdContent += `### Cons\n${rec.cons.map((c: string) => `- ${c}`).join('\n')}\n\n`;
+            });
+
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `history-${new Date(item.created_at).toISOString().split('T')[0]}.md`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            toast.success('Exported as Markdown');
+        } else if (format === 'pdf') {
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.text('ModelForge Query History', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Date: ${new Date(item.created_at).toLocaleDateString()}`, 20, 30);
+            doc.text(`Query: ${item.query_text}`, 20, 40);
+
+            let yPos = 55;
+            recommendations.forEach((rec: any, index: number) => {
+                if (yPos > 250) { doc.addPage(); yPos = 20; }
+                doc.setFontSize(14);
+                doc.text(`${index + 1}. ${rec.name}`, 20, yPos);
+                yPos += 10;
+                doc.setFontSize(11);
+                const desc = doc.splitTextToSize(rec.description, 170);
+                doc.text(desc, 20, yPos);
+                yPos += (desc.length * 6) + 10;
+            });
+
+            doc.save(`history-${new Date(item.created_at).toISOString().split('T')[0]}.pdf`);
+            toast.success('Exported as PDF');
+        }
+    };
+
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="flex items-center gap-3 mb-8">
@@ -161,6 +229,30 @@ export default function HistoryPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                                        {/* Download Options */}
+                                        <div className="flex items-center bg-zinc-800 rounded-lg p-1 gap-1">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(item, 'pdf'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download PDF"
+                                            >
+                                                PDF
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(item, 'md'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download Markdown"
+                                            >
+                                                MD
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(item, 'json'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download JSON"
+                                            >
+                                                JSON
+                                            </button>
+                                        </div>
                                         <button
                                             onClick={(e) => handleDelete(e, item.id)}
                                             className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"

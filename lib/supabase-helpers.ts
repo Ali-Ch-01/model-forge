@@ -210,21 +210,33 @@ export async function submitModelFeedback(
     queryId?: string
 ): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
+    if (!user) {
+        console.error('No authenticated user found');
+        return false;
+    }
+
+    const feedbackData = {
+        user_id: user.id,
+        model_name: modelName,
+        rating,
+        feedback_text: feedbackText || null,
+        was_helpful: wasHelpful !== undefined ? wasHelpful : null,
+        query_id: queryId || null
+    };
+
+    console.log('Submitting feedback:', feedbackData);
 
     const { error } = await supabase
         .from('model_feedback')
-        .insert({
-            user_id: user.id,
-            model_name: modelName,
-            rating,
-            feedback_text: feedbackText || null,
-            was_helpful: wasHelpful !== undefined ? wasHelpful : null,
-            query_id: queryId || null
-        });
+        .insert(feedbackData);
 
     if (error) {
-        console.error('Error submitting feedback:', error);
+        console.error('Error submitting feedback:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+        });
         return false;
     }
 

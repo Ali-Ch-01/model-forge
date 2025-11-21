@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Heart, Trash2, FileText, Calendar } from 'lucide-react';
+import { Heart, Trash2, FileText, Calendar, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import type { SavedModel } from '@/lib/database.types';
 import { getSavedModels, unsaveModel } from '@/lib/supabase-helpers';
 import Dashboard from '@/components/Dashboard';
+import jsPDF from 'jspdf';
 
 export default function SavedModelsPage() {
     const [savedModels, setSavedModels] = useState<SavedModel[]>([]);
@@ -34,6 +35,77 @@ export default function SavedModelsPage() {
             if (selectedModel?.id === modelId) setSelectedModel(null);
         } else {
             toast.error('Failed to remove model');
+        }
+    };
+
+    const handleExport = (saved: SavedModel, format: 'pdf' | 'md' | 'json') => {
+        const modelData = saved.model_data as any;
+        const recommendations = modelData ? [modelData] : [];
+
+        if (format === 'json') {
+            const dataStr = JSON.stringify({
+                model_name: saved.model_name,
+                saved_date: saved.created_at,
+                notes: saved.notes,
+                model_data: modelData
+            }, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `saved-${saved.model_name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            toast.success('Exported as JSON');
+        } else if (format === 'md') {
+            let mdContent = `# ${saved.model_name}\n\n`;
+            mdContent += `**Saved on:** ${new Date(saved.created_at).toLocaleDateString()}\n\n`;
+            if (saved.notes) mdContent += `**Notes:** ${saved.notes}\n\n`;
+
+            if (modelData) {
+                mdContent += `## Description\n${modelData.description}\n\n`;
+                if (modelData.suitabilityScore) mdContent += `**Suitability Score:** ${modelData.suitabilityScore}%\n\n`;
+                if (modelData.pros?.length) mdContent += `### Pros\n${modelData.pros.map((p: string) => `- ${p}`).join('\n')}\n\n`;
+                if (modelData.cons?.length) mdContent += `### Cons\n${modelData.cons.map((c: string) => `- ${c}`).join('\n')}\n\n`;
+            }
+
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `saved-${saved.model_name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.md`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            toast.success('Exported as Markdown');
+        } else if (format === 'pdf') {
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.text(saved.model_name, 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Saved: ${new Date(saved.created_at).toLocaleDateString()}`, 20, 30);
+            if (saved.notes) {
+                doc.text(`Notes: ${saved.notes}`, 20, 40);
+            }
+
+            let yPos = saved.notes ? 55 : 45;
+            if (modelData) {
+                doc.setFontSize(11);
+                const desc = doc.splitTextToSize(modelData.description, 170);
+                doc.text(desc, 20, yPos);
+                yPos += (desc.length * 6) + 10;
+
+                if (modelData.suitabilityScore) {
+                    doc.text(`Suitability Score: ${modelData.suitabilityScore}%`, 20, yPos);
+                    yPos += 10;
+                }
+            }
+
+            doc.save(`saved-${saved.model_name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`);
+            toast.success('Exported as PDF');
         }
     };
 
@@ -77,13 +149,39 @@ export default function SavedModelsPage() {
                                             Saved {new Date(saved.created_at).toLocaleDateString()}
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDelete(saved.id)}
-                                        className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
-                                        title="Remove from favorites"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        {/* Download Options */}
+                                        <div className="flex items-center bg-zinc-800 rounded-lg p-1 gap-1">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(saved, 'pdf'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download PDF"
+                                            >
+                                                PDF
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(saved, 'md'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download Markdown"
+                                            >
+                                                MD
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleExport(saved, 'json'); }}
+                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                title="Download JSON"
+                                            >
+                                                JSON
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDelete(saved.id)}
+                                            className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                            title="Remove from favorites"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {saved.notes && (
