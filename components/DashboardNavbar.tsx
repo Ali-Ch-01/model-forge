@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 export default function DashboardNavbar() {
     const pathname = usePathname();
@@ -61,23 +62,26 @@ export default function DashboardNavbar() {
                         <span>ModelForge</span>
                     </Link>
 
-                    {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center gap-6">
-                        {navItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = pathname === item.href;
-                            return (
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <nav className="flex items-center gap-2">
+                            {navItems.map((item) => (
                                 <Link
-                                    key={item.href}
+                                    key={item.name}
                                     href={item.href}
-                                    className={`flex items-center gap-2 text-sm font-medium transition-colors ${isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === item.href
+                                            ? 'bg-cyan-600 text-white'
+                                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                                         }`}
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <item.icon className="w-4 h-4 inline-block mr-2" />
                                     {item.name}
                                 </Link>
-                            );
-                        })}
+                            ))}
+                        </nav>
+
+                        {/* Theme Toggle */}
+                        <ThemeToggle />
                         <div className="h-6 w-px bg-zinc-800" />
 
                         {/* Profile Dropdown */}

@@ -101,11 +101,13 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Data Type */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Data Type</label>
+                                    <label htmlFor="data-type" className="text-sm font-medium text-zinc-400">Data Type</label>
                                     <select
+                                        id="data-type"
+                                        aria-label="Select data type for your ML project"
                                         value={structuredData.dataType}
                                         onChange={(e) => setStructuredData({ ...structuredData, dataType: e.target.value as DataType })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                                     >
                                         <option value="image">Image</option>
                                         <option value="text">Text</option>
@@ -119,11 +121,13 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
 
                                 {/* Task Type */}
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Task Type</label>
+                                    <label htmlFor="task-type" className="text-sm font-medium text-zinc-400">Task Type</label>
                                     <select
+                                        id="task-type"
+                                        aria-label="Select task type"
                                         value={structuredData.taskType}
                                         onChange={(e) => setStructuredData({ ...structuredData, taskType: e.target.value as TaskType })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                                     >
                                         <option value="classification">Classification</option>
                                         <option value="regression">Regression</option>

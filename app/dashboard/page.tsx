@@ -20,14 +20,24 @@ export default function DashboardPage() {
 
     const handleSearch = async (input: UserInput) => {
         setIsLoading(true);
-        setLastQuery(input.description || '');
+        setLastQuery(input.description || JSON.stringify(input));
+
         try {
-            const results = await getRecommendations(input);
-            setRecommendations(results);
+            const recommendPromise = getRecommendations(input);
+
+            // Show toast with promise
+            toast.promise(recommendPromise, {
+                loading: 'Generating recommendations...',
+                success: (recs) => `Found ${recs.length} perfect models for you!`,
+                error: 'Failed to fetch recommendations. Please try again.',
+            });
+
+            // Wait for actual completion
+            const recs = await recommendPromise;
+            setRecommendations(recs);
             setHasSearched(true);
         } catch (error) {
-            console.error('Error fetching recommendations:', error);
-            toast.error('Failed to fetch recommendations. Please try again.');
+            console.error('Recommendation error:', error);
         } finally {
             setIsLoading(false);
         }

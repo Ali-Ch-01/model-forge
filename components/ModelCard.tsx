@@ -23,14 +23,19 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
 
     const handleSave = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        const success = await saveModel(supabase, model.name, model);
-        if (success) {
-            setIsSaved(true);
-            await trackModelSave(supabase, model.name, 'saved');
-            toast.success('Model saved to favorites');
-        } else {
-            toast.error('Failed to save model');
-        }
+
+        toast.promise(
+            saveModel(supabase, model.name, model),
+            {
+                loading: 'Saving model...',
+                success: async () => {
+                    setIsSaved(true);
+                    await trackModelSave(supabase, model.name, 'saved');
+                    return 'Model saved to favorites';
+                },
+                error: () => 'Failed to save model. Please try again.',
+            }
+        );
     };
 
     const handleFeedback = (e: React.MouseEvent) => {

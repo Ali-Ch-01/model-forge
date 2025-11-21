@@ -21,9 +21,9 @@ export default function Dashboard({ recommendations }: DashboardProps) {
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 pb-20">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 {/* Left Column: Model Cards + MLOps Panel */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-4 lg:space-y-6" role="region" aria-label="Model recommendations list">
                     <div className="space-y-4">
                         {recommendations.map((model) => (
                             <ModelCard
@@ -42,7 +42,7 @@ export default function Dashboard({ recommendations }: DashboardProps) {
                 </div>
 
                 {/* Right Column: Architecture & Code */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-2 space-y-6 lg:space-y-8" role="region" aria-label="Model details and code">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={selectedModel.id}
@@ -50,17 +50,17 @@ export default function Dashboard({ recommendations }: DashboardProps) {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
-                            className="space-y-8"
+                            className="space-y-6 lg:space-y-8"
                         >
                             {/* Architecture Diagram */}
-                            <section>
-                                <h3 className="text-lg font-semibold text-zinc-300 mb-3">Architecture Diagram</h3>
+                            <section aria-labelledby="architecture-heading">
+                                <h3 id="architecture-heading" className="text-lg font-semibold text-zinc-300 mb-3">Architecture Diagram</h3>
                                 <ArchitectureDiagram chart={selectedModel.architectureDiagram} />
                             </section>
 
                             {/* Code Generator */}
-                            <section>
-                                <h3 className="text-lg font-semibold text-zinc-300 mb-3">Training Code Boilerplate</h3>
+                            <section aria-labelledby="code-heading">
+                                <h3 id="code-heading" className="text-lg font-semibold text-zinc-300 mb-3">Training Code Boilerplate</h3>
                                 <CodeGenerator codeSnippets={selectedModel.trainingCode} />
                             </section>
                         </motion.div>

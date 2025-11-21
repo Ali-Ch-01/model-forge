@@ -2,13 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Heart, Trash2, FileText, Calendar, Download } from 'lucide-react';
-import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { Heart, Trash2, Eye, Download, Calendar, FileText } from 'lucide-react';
+import Link from 'next/link';
+import Dashboard from '@/components/Dashboard';
+import EmptyState from '@/components/EmptyState';
+import { SkeletonTable } from '@/components/ui/Skeleton';
+import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 import type { SavedModel } from '@/lib/database.types';
 import { getSavedModels, unsaveModel } from '@/lib/supabase-helpers';
-import Dashboard from '@/components/Dashboard';
-import jsPDF from 'jspdf';
 
 export default function SavedModelsPage() {
     const [savedModels, setSavedModels] = useState<SavedModel[]>([]);
@@ -27,15 +30,26 @@ export default function SavedModelsPage() {
     };
 
     const handleDelete = async (modelId: string) => {
-        const success = await unsaveModel(supabase, modelId);
+        const deletedModel = savedModels.find(m => m.id === modelId);
 
-        if (success) {
-            toast.success('Model removed from favorites');
-            setSavedModels(prev => prev.filter(m => m.id !== modelId));
-            if (selectedModel?.id === modelId) setSelectedModel(null);
-        } else {
-            toast.error('Failed to remove model');
-        }
+        // Optimistic update
+        setSavedModels(prev => prev.filter(m => m.id !== modelId));
+        if (selectedModel?.id === modelId) setSelectedModel(null);
+
+        toast.promise(
+            unsaveModel(supabase, modelId),
+            {
+                loading: 'Removing from favorites...',
+                success: () => 'Model removed from favorites',
+                error: () => {
+                    // Restore on error
+                    if (deletedModel) {
+                        setSavedModels(prev => [deletedModel, ...prev]);
+                    }
+                    return 'Failed to remove model. Please try again.';
+                },
+            }
+        );
     };
 
     const handleExport = (saved: SavedModel, format: 'pdf' | 'md' | 'json') => {
@@ -69,6 +83,21 @@ export default function SavedModelsPage() {
                 if (modelData.suitabilityScore) mdContent += `**Suitability Score:** ${modelData.suitabilityScore}%\n\n`;
                 if (modelData.pros?.length) mdContent += `### Pros\n${modelData.pros.map((p: string) => `- ${p}`).join('\n')}\n\n`;
                 if (modelData.cons?.length) mdContent += `### Cons\n${modelData.cons.map((c: string) => `- ${c}`).join('\n')}\n\n`;
+                if (modelData.use_cases?.length) mdContent += `### Use Cases\n${modelData.use_cases.map((u: string) => `- ${u}`).join('\n')}\n\n`;
+                if (modelData.mlopsBestPractices?.length) mdContent += `### MLOps Best Practices\n${modelData.mlopsBestPractices.map((m: string) => `- ${m}`).join('\n')}\n\n`;
+
+                // Architecture Diagram
+                if (modelData.architectureDiagram) {
+                    mdContent += `### Architecture Diagram\n\`\`\`mermaid\n${modelData.architectureDiagram}\n\`\`\`\n\n`;
+                }
+
+                // Training Code
+                if (modelData.trainingCode?.length) {
+                    mdContent += `### Training Code\n\n`;
+                    modelData.trainingCode.forEach((code: any) => {
+                        mdContent += `#### ${code.framework.toUpperCase()}\n\`\`\`python\n${code.code}\n\`\`\`\n\n`;
+                    });
+                }
             }
 
             const blob = new Blob([mdContent], { type: 'text/markdown' });
@@ -83,24 +112,79 @@ export default function SavedModelsPage() {
             toast.success('Exported as Markdown');
         } else if (format === 'pdf') {
             const doc = new jsPDF();
-            doc.setFontSize(20);
+
+            // Title
+            doc.setFontSize(22);
+            doc.setTextColor(41, 128, 185);
             doc.text(saved.model_name, 20, 20);
-            doc.setFontSize(12);
+
+            // Meta info
+            doc.setFontSize(10);
+            doc.setTextColor(100);
             doc.text(`Saved: ${new Date(saved.created_at).toLocaleDateString()}`, 20, 30);
+
+            let yPos = 35;
             if (saved.notes) {
-                doc.text(`Notes: ${saved.notes}`, 20, 40);
+                const splitNotes = doc.splitTextToSize(`Notes: ${saved.notes}`, 170);
+                doc.text(splitNotes, 20, yPos);
+                yPos += (splitNotes.length * 5) + 10;
             }
 
-            let yPos = saved.notes ? 55 : 45;
             if (modelData) {
-                doc.setFontSize(11);
-                const desc = doc.splitTextToSize(modelData.description, 170);
-                doc.text(desc, 20, yPos);
-                yPos += (desc.length * 6) + 10;
-
+                // Score
                 if (modelData.suitabilityScore) {
+                    doc.setFontSize(12);
+                    doc.setTextColor(39, 174, 96);
                     doc.text(`Suitability Score: ${modelData.suitabilityScore}%`, 20, yPos);
                     yPos += 10;
+                }
+
+                // Description
+                doc.setFontSize(11);
+                doc.setTextColor(60);
+                const desc = doc.splitTextToSize(modelData.description, 170);
+                doc.text(desc, 20, yPos);
+                yPos += (desc.length * 6) + 5;
+
+                // Helper function for lists
+                const addListSection = (title: string, items: string[]) => {
+                    if (items && items.length > 0) {
+                        if (yPos > 250) { doc.addPage(); yPos = 20; }
+                        doc.setFontSize(11);
+                        doc.setTextColor(0);
+                        doc.text(title, 20, yPos);
+                        yPos += 6;
+                        doc.setFontSize(10);
+                        doc.setTextColor(80);
+                        items.forEach((item: string) => {
+                            if (yPos > 270) { doc.addPage(); yPos = 20; }
+                            const splitItem = doc.splitTextToSize(`• ${item}`, 160);
+                            doc.text(splitItem, 25, yPos);
+                            yPos += (splitItem.length * 5) + 2;
+                        });
+                        yPos += 5;
+                    }
+                };
+
+                addListSection('Pros:', modelData.pros);
+                addListSection('Cons:', modelData.cons);
+                addListSection('Use Cases:', modelData.use_cases);
+                addListSection('MLOps Best Practices:', modelData.mlopsBestPractices);
+
+                // Architecture Diagram
+                if (modelData.architectureDiagram) {
+                    if (yPos > 230) { doc.addPage(); yPos = 20; }
+                    doc.setFontSize(11);
+                    doc.setTextColor(0);
+                    doc.text('Architecture Diagram (Mermaid Code):', 20, yPos);
+                    yPos += 6;
+                    doc.setFontSize(8);
+                    doc.setTextColor(100);
+                    doc.setFont("courier");
+                    const splitDiagram = doc.splitTextToSize(modelData.architectureDiagram, 170);
+                    doc.text(splitDiagram, 20, yPos);
+                    yPos += (splitDiagram.length * 4) + 10;
+                    doc.setFont("helvetica");
                 }
             }
 
