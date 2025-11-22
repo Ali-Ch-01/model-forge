@@ -1,0 +1,268 @@
+version: '3.8'
+
+# ==============================================================================
+# ModelForge Multi-Container Development & Production Environment
+# ==============================================================================
+# This docker-compose orchestrates:
+# - Next.js Frontend
+# - Supabase (PostgreSQL + Studio + Auth + Realtime)
+# - Redis Cache
+# - ML Model API Service
+# - Monitoring (Prometheus + Grafana)
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # Next.js Frontend Application
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        - NODE_ENV=production
+    container_name: modelforge-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=http://supabase-kong:8000
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ----------------------------------------------------------------------------
+  # Supabase - PostgreSQL Database
+  # ----------------------------------------------------------------------------
+  supabase-db:
+    image: supabase/postgres:15.1.0.117
+    container_name: modelforge-supabase-db
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-password}
+      POSTGRES_HOST: /var/run/postgresql
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # Supabase - Studio (Database Management UI)
+  # ----------------------------------------------------------------------------
+  supabase-studio:
+    image: supabase/studio:20231123-64a766c
+    container_name: modelforge-supabase-studio
+    environment:
+      SUPABASE_URL: http://supabase-kong:8000
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      STUDIO_PG_META_URL: http://supabase-meta:8080
+    ports:
+      - "54323:3000"
+    depends_on:
+      - supabase-db
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Supabase - Auth Service
+  # ----------------------------------------------------------------------------
+  supabase-auth:
+    image: supabase/gotrue:v2.99.0
+    container_name: modelforge-supabase-auth
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
+      
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+      
+      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:3000}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
+      
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY:-3600}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP:-true}
+      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM:-false}
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Supabase - Kong API Gateway
+  # ----------------------------------------------------------------------------
+  supabase-kong:
+    image: kong:2.8.1
+    container_name: modelforge-supabase-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./supabase/kong.yml:/var/lib/kong/kong.yml:ro
+    depends_on:
+      - supabase-auth
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Redis - Caching Layer
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: modelforge-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # ML Model API Service (Python/FastAPI)
+  # ----------------------------------------------------------------------------
+  model-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: modelforge-ml-api
+    ports:
+      - "8001:8000"
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - MODEL_CACHE_DIR=/models
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+    volumes:
+      - model-cache:/models
+      - ./backend:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ----------------------------------------------------------------------------
+  # Prometheus - Metrics Collection
+  # ----------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: modelforge-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # Grafana - Monitoring Dashboards
+  # ----------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: modelforge-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - modelforge-network
+    restart: unless-stopped
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  modelforge-network:
+    driver: bridge
+    name: modelforge-network
+
+# ==============================================================================
+# Persistent Volumes
+# ==============================================================================
+volumes:
+  supabase-db-data:
+    name: modelforge-db-data
+  redis-data:
+    name: modelforge-redis-data
+  model-cache:
+    name: modelforge-model-cache
+  prometheus-data:
+    name: modelforge-prometheus-data
+  grafana-data:
+    name: modelforge-grafana-data
