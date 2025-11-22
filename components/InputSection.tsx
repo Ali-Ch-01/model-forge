@@ -39,8 +39,8 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto mb-12">
-            <div className="flex justify-center mb-8">
+        <div className="w-full max-w-4xl mx-auto">
+            <div className="flex justify-center mb-4">
                 <div className="bg-zinc-100/50 dark:bg-zinc-800/50 p-1 rounded-full backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50">
                     <button
                         onClick={() => setMode('natural')}

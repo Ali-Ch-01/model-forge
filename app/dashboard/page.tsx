@@ -244,7 +244,7 @@ export default function DashboardPage() {
 
             <div className={clsx(
                 "relative z-10 container mx-auto px-4",
-                hasSearched ? "pt-2" : "min-h-screen flex items-center justify-center"
+                hasSearched ? "" : "min-h-screen flex items-center justify-center"
             )}>
                 {/* Input Section */}
                 <InputSection onSubmit={handleSearch} isLoading={isLoading} />
