@@ -1,0 +1,193 @@
+# DVC Pipeline Configuration
+# This file defines the data pipeline used during model selection
+
+stages:
+  # Stage 1: Data Preparation
+  data_preparation:
+    cmd: python scripts/prepare_data.py
+    deps:
+      - data/raw/ml_problems_dataset.csv
+      - data/raw/model_mappings.json
+      - scripts/prepare_data.py
+    params:
+      - config/data_config.yaml:
+          - train_split
+          - validation_split
+          - test_split
+    outs:
+      - data/processed/train.csv
+      - data/processed/validation.csv
+      - data/processed/test.csv
+      - data/processed/data_statistics.json
+    metrics:
+      - data/processed/data_quality_report.json:
+          cache: false
+
+  # Stage 2: Model Training - ResNet-50
+  train_resnet:
+    cmd: python scripts/train_model.py --model resnet50
+    deps:
+      - data/processed/train.csv
+      - scripts/train_model.py
+      - scripts/models/resnet50.py
+    params:
+      - config/models.yaml:resnet50
+    outs:
+      - models/resnet50/model.pth
+      - models/resnet50/training_history.json
+    metrics:
+      - models/resnet50/metrics.json:
+          cache: false
+
+  # Stage 3: Model Training - EfficientNet-B0
+  train_efficientnet:
+    cmd: python scripts/train_model.py --model efficientnet_b0
+    deps:
+      - data/processed/train.csv
+      - scripts/train_model.py
+      - scripts/models/efficientnet.py
+    params:
+      - config/models.yaml:efficientnet_b0
+    outs:
+      - models/efficientnet_b0/model.pth
+      - models/efficientnet_b0/training_history.json
+    metrics:
+      - models/efficientnet_b0/metrics.json:
+          cache: false
+
+  # Stage 4: Model Training - DeepSeek LLM
+  train_deepseek:
+    cmd: python scripts/train_model.py --model deepseek_llm
+    deps:
+      - data/processed/train.csv
+      - scripts/train_model.py
+      - scripts/models/deepseek.py
+    params:
+      - config/models.yaml:deepseek_llm
+    outs:
+      - models/deepseek_llm/model_checkpoint/
+      - models/deepseek_llm/training_history.json
+    metrics:
+      - models/deepseek_llm/metrics.json:
+          cache: false
+
+  # Stage 5: Model Training - Mistral 7B
+  train_mistral:
+    cmd: python scripts/train_model.py --model mistral_7b
+    deps:
+      - data/processed/train.csv
+      - scripts/train_model.py
+      - scripts/models/mistral.py
+    params:
+      - config/models.yaml:mistral_7b
+    outs:
+      - models/mistral_7b/model_checkpoint/
+      - models/mistral_7b/training_history.json
+    metrics:
+      - models/mistral_7b/metrics.json:
+          cache: false
+
+  # Stage 6: Model Training - Qwen 2.7 7B (SELECTED)
+  train_qwen:
+    cmd: python scripts/train_model.py --model qwen_2_7_7b
+    deps:
+      - data/processed/train.csv
+      - scripts/train_model.py
+      - scripts/models/qwen.py
+    params:
+      - config/models.yaml:qwen_2_7_7b
+    outs:
+      - models/qwen_2_7_7b/model_checkpoint/
+      - models/qwen_2_7_7b/training_history.json
+    metrics:
+      - models/qwen_2_7_7b/metrics.json:
+          cache: false
+
+  # Stage 7: Model Evaluation - All Models
+  evaluate_all:
+    cmd: python scripts/evaluate_all_models.py
+    deps:
+      - data/processed/test.csv
+      - models/resnet50/model.pth
+      - models/efficientnet_b0/model.pth
+      - models/deepseek_llm/model_checkpoint/
+      - models/mistral_7b/model_checkpoint/
+      - models/qwen_2_7_7b/model_checkpoint/
+      - scripts/evaluate_all_models.py
+    outs:
+      - evaluation/comparison_report.json
+      - evaluation/detailed_results.csv
+      - evaluation/confusion_matrices/
+    metrics:
+      - evaluation/final_metrics.json:
+          cache: false
+    plots:
+      - evaluation/accuracy_comparison.json:
+          x: model_name
+          y: accuracy
+      - evaluation/latency_comparison.json:
+          x: model_name
+          y: inference_time_ms
+      - evaluation/cost_comparison.json:
+          x: model_name
+          y: cost_per_1k_requests
+
+  # Stage 8: Model Selection
+  select_best:
+    cmd: python scripts/select_best_model.py
+    deps:
+      - evaluation/comparison_report.json
+      - evaluation/final_metrics.json
+      - scripts/select_best_model.py
+    params:
+      - config/selection_criteria.yaml:
+          - min_accuracy
+          - max_latency_ms
+          - max_cost_per_1k
+          - min_reasoning_score
+    outs:
+      - selected_model.json
+      - selection_rationale.md
+
+  # Stage 9: Export Selected Model
+  export_production:
+    cmd: python scripts/export_for_production.py --model qwen_2_7_7b
+    deps:
+      - models/qwen_2_7_7b/model_checkpoint/
+      - selected_model.json
+      - scripts/export_for_production.py
+    outs:
+      - production_model/qwen_2_7_7b_optimized.onnx
+      - production_model/model_config.json
+      - production_model/deployment_instructions.md
+
+# Plots for visualization
+plots:
+  - evaluation/metrics_over_time.csv:
+      x: timestamp
+      y:
+        - accuracy
+        - f1_score
+  - evaluation/model_comparison.csv:
+      x: model_name
+      y:
+        - accuracy
+        - inference_time_ms
+        - cost_per_1k_requests
+
+# Artifacts tracked by DVC
+artifacts:
+  model_artifacts:
+    path: models/
+    desc: "All trained model checkpoints"
+    type: model
+  
+  data_artifacts:
+    path: data/processed/
+    desc: "Processed datasets for training and evaluation"
+    type: dataset
+  
+  evaluation_artifacts:
+    path: evaluation/
+    desc: "Evaluation results and comparison reports"
+    type: metrics

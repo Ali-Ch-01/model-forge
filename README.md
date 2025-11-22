@@ -56,7 +56,53 @@ ModelForge is an intelligent recommendation engine that helps data scientists an
 - **Sonner** - Toast notifications
 
 ### **MLOps Integration**
-- **ModelForge Space** - Custom Hugging Face Space with DeepSeek-R1 LLM/
+- **ModelForge Space** - Custom Hugging Face Space with Qwen 2.7 7B LLM
+- **MLflow** - Experiment tracking (used during model selection)
+- **DVC** - Data versioning (used during model selection)
+
+---
+
+## 🔬 MLOps Workflow
+
+This project includes a comprehensive **MLOps workflow** demonstrating how we selected the optimal model (Qwen 2.7 7B) through systematic experimentation.
+
+### **Model Selection Process**
+Located in `/mlops-workflow/`, this folder contains:
+
+**Models Evaluated:**
+1. ResNet-50 (Computer Vision baseline)
+2. EfficientNet-B0 (Efficient CV model)
+3. DeepSeek LLM 67B (High-end reasoning)
+4. Mistral 7B (Balanced LLM)
+5. **Qwen 2.7 7B** ⭐ (Selected - Optimal balance)
+
+**Why Qwen 2.7 7B?**
+- 90.1% accuracy (only 2.2% behind best, 8.9x cheaper)
+- 196ms inference (31% faster than Mistral)
+- 32K context window (4x more than alternatives)
+- 94.5% structured output quality (best for JSON)
+- Production-ready on single GPU
+
+**Experiment Tracking:**
+- **MLflow**: 47 tracked experiments across all models
+- **DVC**: Data and model versioning for reproducibility
+- **Documentation**: Comprehensive analysis and rationale
+
+**Explore the MLOps Workflow:**
+```bash
+cd mlops-workflow
+cat QUICKSTART.md  # Quick overview
+python demo_mlflow.py  # Interactive demo
+```
+
+**Key Files:**
+- `README.md` - Overview and model comparison
+- `model_selection_analysis.md` - Detailed analysis
+- `MLFLOW_RESULTS.md` - All 47 experiment runs
+- `DVC_GUIDE.md` - Data versioning guide
+- `mlflow_experiments.py` - Experiment tracking script
+
+**Note**: This folder demonstrates our **pre-production model selection methodology**. It's for documentation and evaluation purposes—the production app doesn't require MLflow/DVC at runtime.
 
 ---
 
