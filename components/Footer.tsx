@@ -21,30 +21,30 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold mb-6 text-zinc-900 dark:text-white">Product</h4>
                         <ul className="space-y-4 text-sm text-zinc-600 dark:text-zinc-500">
-                            <li><Link href="/features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Features</Link></li>
-                            <li><Link href="/pricing" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Pricing</Link></li>
-                            <li><Link href="/enterprise" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Enterprise</Link></li>
-                            <li><Link href="/changelog" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Changelog</Link></li>
+                            <li><Link href="/features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Features</Link></li>
+                            <li><Link href="/pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Pricing</Link></li>
+                            <li><Link href="/enterprise" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Enterprise</Link></li>
+                            <li><Link href="/changelog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Changelog</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="font-bold mb-6 text-zinc-900 dark:text-white">Resources</h4>
                         <ul className="space-y-4 text-sm text-zinc-600 dark:text-zinc-500">
-                            <li><Link href="/docs" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Documentation</Link></li>
-                            <li><Link href="/api" className="hover:text-zinc-900 dark:hover:text-white transition-colors">API Reference</Link></li>
-                            <li><Link href="/community" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Community</Link></li>
-                            <li><Link href="/blog" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Blog</Link></li>
+                            <li><Link href="/docs" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Documentation</Link></li>
+                            <li><Link href="/api" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">API Reference</Link></li>
+                            <li><Link href="/community" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Community</Link></li>
+                            <li><Link href="/blog" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Blog</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="font-bold mb-6 text-zinc-900 dark:text-white">Company</h4>
                         <ul className="space-y-4 text-sm text-zinc-600 dark:text-zinc-500">
-                            <li><Link href="/about" className="hover:text-zinc-900 dark:hover:text-white transition-colors">About</Link></li>
-                            <li><Link href="/careers" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Careers</Link></li>
-                            <li><Link href="/legal" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Legal</Link></li>
-                            <li><Link href="/contact" className="hover:text-zinc-900 dark:hover:text-white transition-colors">Contact</Link></li>
+                            <li><Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</Link></li>
+                            <li><Link href="/careers" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Careers</Link></li>
+                            <li><Link href="/legal" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Legal</Link></li>
+                            <li><Link href="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</Link></li>
                         </ul>
                     </div>
                 </div>

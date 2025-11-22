@@ -161,7 +161,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.performancePriority}
                                         onChange={(e) => setStructuredData({ ...structuredData, performancePriority: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="accuracy">Accuracy</option>
                                         <option value="speed">Speed</option>
@@ -175,7 +175,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.deploymentTarget}
                                         onChange={(e) => setStructuredData({ ...structuredData, deploymentTarget: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="cloud-gpu">Cloud GPU</option>
                                         <option value="cloud-cpu">Cloud CPU</option>
@@ -191,7 +191,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.latencyRequirement}
                                         onChange={(e) => setStructuredData({ ...structuredData, latencyRequirement: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="realtime">Real-time (&lt;100ms)</option>
                                         <option value="fast">Fast (&lt;1s)</option>
@@ -206,7 +206,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.modelSizeConstraint}
                                         onChange={(e) => setStructuredData({ ...structuredData, modelSizeConstraint: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="tiny">Tiny (&lt;10MB)</option>
                                         <option value="small">Small (&lt;100MB)</option>
@@ -221,7 +221,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.hardwareBudget}
                                         onChange={(e) => setStructuredData({ ...structuredData, hardwareBudget: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="limited">Limited (CPU only)</option>
                                         <option value="moderate">Moderate (Consumer GPU)</option>
@@ -235,7 +235,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.trainingDataQuality}
                                         onChange={(e) => setStructuredData({ ...structuredData, trainingDataQuality: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="labeled">Fully Labeled</option>
                                         <option value="partially-labeled">Partially Labeled</option>
@@ -249,7 +249,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.interpretabilityNeed}
                                         onChange={(e) => setStructuredData({ ...structuredData, interpretabilityNeed: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="critical">Critical (Healthcare, Finance)</option>
                                         <option value="important">Important</option>
@@ -264,7 +264,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.updateFrequency}
                                         onChange={(e) => setStructuredData({ ...structuredData, updateFrequency: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="realtime">Real-time Learning</option>
                                         <option value="daily">Daily Updates</option>
@@ -279,7 +279,7 @@ export default function InputSection({ onSubmit, isLoading }: InputSectionProps)
                                     <select
                                         value={structuredData.domain}
                                         onChange={(e) => setStructuredData({ ...structuredData, domain: e.target.value as any })}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
                                     >
                                         <option value="general">General</option>
                                         <option value="healthcare">Healthcare</option>

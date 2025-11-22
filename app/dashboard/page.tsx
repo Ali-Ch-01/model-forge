@@ -9,6 +9,7 @@ import Dashboard from '@/components/Dashboard';
 import { UserInput, ModelRecommendation, getRecommendations } from '@/lib/recommendationEngine';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import clsx from 'clsx';
 
 export default function DashboardPage() {
     const [recommendations, setRecommendations] = useState<ModelRecommendation[]>([]);
@@ -241,7 +242,10 @@ export default function DashboardPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-500/10 dark:bg-teal-500/10 rounded-full blur-[120px]" />
             </div>
 
-            <div className="relative z-10 container mx-auto px-4 py-12">
+            <div className={clsx(
+                "relative z-10 container mx-auto px-4",
+                hasSearched ? "py-12" : "min-h-screen flex items-center justify-center"
+            )}>
                 {/* Input Section */}
                 <InputSection onSubmit={handleSearch} isLoading={isLoading} />
 
