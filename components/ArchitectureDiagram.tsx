@@ -57,7 +57,7 @@ export default function ArchitectureDiagram({ chart }: ArchitectureDiagramProps)
               <p class="font-bold">Failed to render diagram</p>
               <pre class="mt-2 text-xs overflow-auto">${error instanceof Error ? error.message : JSON.stringify(error)}</pre>
               <p class="mt-2 text-xs text-zinc-500">Chart content:</p>
-              <pre class="text-xs bg-zinc-800 p-2 rounded mt-1 overflow-auto">${chart}</pre>
+              <pre class="text-xs bg-zinc-100 dark:bg-zinc-800 p-2 rounded mt-1 overflow-auto">${chart}</pre>
             </div>`;
                     }
                 }
@@ -67,7 +67,7 @@ export default function ArchitectureDiagram({ chart }: ArchitectureDiagramProps)
     }, [chart, isMermaidLoaded]);
 
     return (
-        <div className="w-full overflow-x-auto bg-zinc-900 rounded-xl p-6 border border-zinc-800 flex justify-center items-center min-h-[300px]">
+        <div className="w-full overflow-x-auto bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800 flex justify-center items-center min-h-[300px]">
             <div ref={containerRef} className="w-full flex justify-center" />
         </div>
     );

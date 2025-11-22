@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Trash2, Download, ChevronDown, ChevronUp, Search as SearchIcon, Calendar } from 'lucide-react';
+import { Clock, Trash2, Search as SearchIcon, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import Dashboard from '@/components/Dashboard';
 import EmptyState from '@/components/EmptyState';
@@ -29,27 +29,27 @@ export default function HistoryPage() {
     const supabase = createClient();
 
     useEffect(() => {
+        const fetchHistory = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+    
+            const { data, error } = await supabase
+                .from('query_history')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+    
+            if (error) {
+                console.error('Error fetching history:', error);
+                toast.error('Failed to load history');
+            } else {
+                setHistory(data || []);
+            }
+            setIsLoading(false);
+        };
+
         fetchHistory();
-    }, []);
-
-    const fetchHistory = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase
-            .from('query_history')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching history:', error);
-            toast.error('Failed to load history');
-        } else {
-            setHistory(data || []);
-        }
-        setIsLoading(false);
-    };
+    }, [supabase]);
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
@@ -271,7 +271,7 @@ export default function HistoryPage() {
                 <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
                     <Clock className="w-5 h-5 text-blue-400" />
                 </div>
-                <h1 className="text-3xl font-bold text-white">Query History</h1>
+                <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Query History</h1>
             </div>
 
             {/* Search and Filter Bar */}
@@ -285,7 +285,7 @@ export default function HistoryPage() {
                             placeholder="Search queries..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                         />
                     </div>
 
@@ -297,7 +297,7 @@ export default function HistoryPage() {
                                 onClick={() => setDateFilter(filter)}
                                 className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${dateFilter === filter
                                     ? 'bg-cyan-600 text-white'
-                                    : 'bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-cyan-500/50 hover:text-white'
+                                    : 'bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-cyan-500/50 hover:text-zinc-900 dark:hover:text-white'
                                     }`}
                             >
                                 <Calendar className="w-4 h-4 inline-block mr-1.5" />
@@ -322,13 +322,13 @@ export default function HistoryPage() {
                         }
                     />
                 ) : (
-                    <div className="text-center py-20 bg-zinc-900/30 rounded-2xl border border-zinc-800">
-                        <SearchIcon className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-white mb-2">No results found</h3>
-                        <p className="text-zinc-400 mb-6">Try adjusting your search or filters.</p>
+                    <div className="text-center py-20 bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                        <SearchIcon className="w-12 h-12 text-zinc-400 dark:text-zinc-600 mx-auto mb-4" />
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">No results found</h3>
+                        <p className="text-zinc-500 dark:text-zinc-400 mb-6">Try adjusting your search or filters.</p>
                         <button
                             onClick={() => { setSearchQuery(''); setDateFilter('all'); }}
-                            className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition-colors"
+                            className="px-6 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg font-medium transition-colors"
                         >
                             Clear Filters
                         </button>
@@ -349,7 +349,7 @@ export default function HistoryPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="group bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all"
+                                className="group bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all"
                             >
                                 <div className="p-6 flex items-start justify-between gap-4">
                                     <div
@@ -367,7 +367,7 @@ export default function HistoryPage() {
                                         </div>
 
                                         <div className="mb-2">
-                                            <h3 className={`text-lg font-medium text-white transition-colors group-hover:text-blue-400 ${!isExpanded ? 'line-clamp-1' : ''}`}>
+                                            <h3 className={`text-lg font-medium text-zinc-900 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 ${!isExpanded ? 'line-clamp-1' : ''}`}>
                                                 {item.query_text || "Untitled Query"}
                                             </h3>
                                             {isLongQuery && (
@@ -383,31 +383,31 @@ export default function HistoryPage() {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-2 text-sm text-zinc-400">
+                                        <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                                             <span className="w-2 h-2 rounded-full bg-emerald-500" />
                                             {Array.isArray(item.recommended_models) ? item.recommended_models.length : 0} models recommended
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                                    <div className="flex items-center gap-2 ml-4 shrink-0">
                                         {/* Download Options */}
-                                        <div className="flex items-center bg-zinc-800 rounded-lg p-1 gap-1">
+                                        <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 gap-1">
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleExport(item, 'pdf'); }}
-                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                className="px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
                                                 title="Download PDF"
                                             >
                                                 PDF
                                             </button>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleExport(item, 'md'); }}
-                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                className="px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
                                                 title="Download Markdown"
                                             >
                                                 MD
                                             </button>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleExport(item, 'json'); }}
-                                                className="px-2 py-1 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition-colors"
+                                                className="px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
                                                 title="Download JSON"
                                             >
                                                 JSON
@@ -415,16 +415,16 @@ export default function HistoryPage() {
                                         </div>
                                         <button
                                             onClick={(e) => handleDelete(e, item.id)}
-                                            className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                                            className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
                                             title="Delete history item"
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
-                                            className={`p-2 rounded-lg transition-all ${selectedItem?.id === item.id ? 'bg-blue-600 text-white rotate-180' : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700'}`}
+                                            className={`p-2 rounded-lg transition-all ${selectedItem?.id === item.id ? 'bg-blue-600 text-white rotate-180' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700'}`}
                                         >
-                                            <ChevronDown className="w-5 h-5" />
+                                            <span className="text-xs">▼</span>
                                         </button>
                                     </div>
                                 </div>
@@ -435,7 +435,7 @@ export default function HistoryPage() {
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            className="border-t border-zinc-800 bg-black/20"
+                                            className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-black/20"
                                         >
                                             <div className="p-6">
                                                 <Dashboard recommendations={item.recommended_models} />

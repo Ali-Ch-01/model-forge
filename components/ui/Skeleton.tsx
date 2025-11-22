@@ -11,7 +11,7 @@ export function Skeleton({ className }: SkeletonProps) {
     return (
         <div
             className={clsx(
-                'animate-pulse rounded-lg bg-zinc-800/50',
+                'animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800/50',
                 className
             )}
         />
@@ -20,7 +20,7 @@ export function Skeleton({ className }: SkeletonProps) {
 
 export function SkeletonCard() {
     return (
-        <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900">
+        <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                     <Skeleton className="h-6 w-3/4 mb-2" />
@@ -40,7 +40,7 @@ export function SkeletonTable() {
     return (
         <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-                <div key={i} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900">
+                <div key={i} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                     <div className="flex items-center justify-between">
                         <div className="flex-1 space-y-2">
                             <Skeleton className="h-5 w-1/2" />

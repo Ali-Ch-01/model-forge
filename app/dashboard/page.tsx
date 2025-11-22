@@ -234,11 +234,11 @@ export default function DashboardPage() {
     };
 
     return (
-        <main className="min-h-screen bg-black text-white selection:bg-cyan-500/30">
+        <main className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white selection:bg-cyan-500/30 transition-colors duration-300">
             {/* Background Gradients */}
             <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-500/10 rounded-full blur-[120px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 dark:bg-cyan-500/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-teal-500/10 dark:bg-teal-500/10 rounded-full blur-[120px]" />
             </div>
 
             <div className="relative z-10 container mx-auto px-4 py-12">
@@ -251,25 +251,25 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-2xl font-bold">Recommendations</h2>
                             <div className="flex items-center gap-3">
-                                <span className="text-sm font-bold text-zinc-300">Download:</span>
-                                <div className="flex items-center bg-zinc-900 rounded-lg border border-zinc-800 p-1">
+                                <span className="text-sm font-bold text-zinc-600 dark:text-zinc-300">Download:</span>
+                                <div className="flex items-center bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-1">
                                     <button
                                         onClick={handleExportPDF}
-                                        className="px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md transition-colors"
                                     >
                                         PDF
                                     </button>
-                                    <div className="w-px h-4 bg-zinc-800 mx-1" />
+                                    <div className="w-px h-4 bg-zinc-300 dark:bg-zinc-800 mx-1" />
                                     <button
                                         onClick={handleExportMarkdown}
-                                        className="px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md transition-colors"
                                     >
                                         MD
                                     </button>
-                                    <div className="w-px h-4 bg-zinc-800 mx-1" />
+                                    <div className="w-px h-4 bg-zinc-300 dark:bg-zinc-800 mx-1" />
                                     <button
                                         onClick={handleExportJSON}
-                                        className="px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-md transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md transition-colors"
                                     >
                                         JSON
                                     </button>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                                 <div className="text-zinc-500 text-lg">
                                     No models found in the database for your query.
                                 </div>
-                                <p className="text-zinc-600 text-sm mt-2">
+                                <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-2">
                                     Try a different search term or check your Supabase database.
                                 </p>
                             </div>

@@ -1,76 +1,47 @@
-'use client';
-
-import PageLayout from '@/components/PageLayout';
-import { Check } from 'lucide-react';
-import { motion } from 'framer-motion';
+import StaticPage from '@/components/StaticPage';
 
 export default function PricingPage() {
     return (
-        <PageLayout title="Pricing" subtitle="Simple, transparent pricing for teams of all sizes.">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose mt-8">
-                {/* Hobby Plan */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    viewport={{ once: true }}
-                    className="p-8 rounded-2xl bg-zinc-900 border border-zinc-800 flex flex-col"
-                >
-                    <h3 className="text-xl font-bold mb-2 text-white">Hobby</h3>
-                    <div className="text-4xl font-bold mb-6 text-white">$0<span className="text-sm text-zinc-500 font-normal">/mo</span></div>
-                    <p className="text-zinc-400 text-sm mb-8">Perfect for students and hobbyists getting started with ML.</p>
-                    <ul className="space-y-4 text-zinc-300 mb-8 flex-1">
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-500" /> 50 queries/month</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-500" /> Standard models</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-500" /> Basic diagrams</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-500" /> Community support</li>
+        <StaticPage title="Pricing" lastUpdated="November 2025">
+            <p className="lead">Simple, transparent pricing for teams of all sizes.</p>
+            
+            <div className="grid md:grid-cols-3 gap-8 not-prose my-12">
+                <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                    <h3 className="text-xl font-bold mb-2">Free</h3>
+                    <div className="text-3xl font-bold mb-4">$0<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                    <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+                        <li>• 5 Model Generations/day</li>
+                        <li>• Basic Code Export</li>
+                        <li>• Community Support</li>
                     </ul>
-                    <button className="w-full py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-colors">Get Started</button>
-                </motion.div>
+                    <button className="w-full py-2 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-black font-medium">Get Started</button>
+                </div>
+                
+                <div className="p-6 rounded-2xl border-2 border-blue-500 bg-white dark:bg-zinc-900 relative">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">POPULAR</div>
+                    <h3 className="text-xl font-bold mb-2">Pro</h3>
+                    <div className="text-3xl font-bold mb-4">$29<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                    <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+                        <li>• Unlimited Generations</li>
+                        <li>• Advanced Architecture Search</li>
+                        <li>• Priority Support</li>
+                        <li>• API Access</li>
+                    </ul>
+                    <button className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium">Start Trial</button>
+                </div>
 
-                {/* Pro Plan */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    viewport={{ once: true }}
-                    className="p-8 rounded-2xl bg-blue-900/10 border border-blue-500/50 relative flex flex-col shadow-2xl shadow-blue-900/20"
-                >
-                    <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg uppercase tracking-wider">Popular</div>
-                    <h3 className="text-xl font-bold mb-2 text-white">Pro</h3>
-                    <div className="text-4xl font-bold mb-6 text-white">$29<span className="text-sm text-zinc-500 font-normal">/mo</span></div>
-                    <p className="text-blue-200/70 text-sm mb-8">For professional engineers shipping production models.</p>
-                    <ul className="space-y-4 text-zinc-300 mb-8 flex-1">
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-400" /> Unlimited queries</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-400" /> Advanced research models</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-400" /> Export to Python/Jupyter</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-400" /> Priority email support</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-blue-400" /> MLOps pipeline generation</li>
+                <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                    <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                    <div className="text-3xl font-bold mb-4">Custom</div>
+                    <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+                        <li>• On-premise Deployment</li>
+                        <li>• Custom Integrations</li>
+                        <li>• Dedicated Account Manager</li>
+                        <li>• SLA Guarantees</li>
                     </ul>
-                    <button className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors shadow-lg shadow-blue-600/20">Upgrade to Pro</button>
-                </motion.div>
-
-                {/* Enterprise Plan */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    viewport={{ once: true }}
-                    className="p-8 rounded-2xl bg-zinc-900 border border-zinc-800 flex flex-col"
-                >
-                    <h3 className="text-xl font-bold mb-2 text-white">Enterprise</h3>
-                    <div className="text-4xl font-bold mb-6 text-white">Custom</div>
-                    <p className="text-zinc-400 text-sm mb-8">For large organizations requiring security and control.</p>
-                    <ul className="space-y-4 text-zinc-300 mb-8 flex-1">
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-zinc-500" /> SSO & SAML Integration</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-zinc-500" /> Private Cloud Deployment</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-zinc-500" /> Custom Model Fine-tuning</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-zinc-500" /> Audit Logs & Compliance</li>
-                        <li className="flex items-center gap-3"><Check className="w-5 h-5 text-zinc-500" /> Dedicated Account Manager</li>
-                    </ul>
-                    <button className="w-full py-3 rounded-lg bg-white text-black hover:bg-zinc-200 font-medium transition-colors">Contact Sales</button>
-                </motion.div>
+                    <button className="w-full py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 font-medium">Contact Sales</button>
+                </div>
             </div>
-        </PageLayout>
+        </StaticPage>
     );
 }

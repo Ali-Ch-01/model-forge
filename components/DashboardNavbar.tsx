@@ -54,7 +54,7 @@ export default function DashboardNavbar() {
     ];
 
     return (
-        <nav className="border-b border-zinc-800 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <nav className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/50 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-300">
             <div className="container mx-auto px-4">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
@@ -71,7 +71,7 @@ export default function DashboardNavbar() {
                                     href={item.href}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${pathname === item.href
                                             ? 'bg-cyan-600 text-white'
-                                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                                            : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
                                         }`}
                                 >
                                     <item.icon className="w-4 h-4 inline-block mr-2" />
@@ -82,15 +82,15 @@ export default function DashboardNavbar() {
 
                         {/* Theme Toggle */}
                         <ThemeToggle />
-                        <div className="h-6 w-px bg-zinc-800" />
+                        <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-800" />
 
                         {/* Profile Dropdown */}
                         <div className="relative">
                             <button
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                                className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
                             >
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-semibold text-xs">
+                                <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center text-white font-semibold text-xs">
                                     {userName?.[0]?.toUpperCase() || 'U'}
                                 </div>
                                 <span className="hidden lg:inline">{userName}</span>
@@ -103,16 +103,16 @@ export default function DashboardNavbar() {
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden"
+                                        className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl overflow-hidden"
                                     >
-                                        <div className="p-3 border-b border-zinc-800">
-                                            <p className="text-sm font-medium text-white">{userName}</p>
+                                        <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
+                                            <p className="text-sm font-medium text-zinc-900 dark:text-white">{userName}</p>
                                             <p className="text-xs text-zinc-500 truncate">View profile</p>
                                         </div>
                                         <Link
                                             href="/dashboard/settings"
                                             onClick={() => setIsProfileOpen(false)}
-                                            className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors"
+                                            className="block px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                                         >
                                             Settings
                                         </Link>
@@ -121,7 +121,7 @@ export default function DashboardNavbar() {
                                                 setIsProfileOpen(false);
                                                 handleSignOut();
                                             }}
-                                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800 transition-colors"
+                                            className="w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                                         >
                                             Sign Out
                                         </button>
@@ -133,7 +133,7 @@ export default function DashboardNavbar() {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden p-2 text-zinc-400 hover:text-white"
+                        className="md:hidden p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         <User className="w-6 h-6" />
@@ -148,15 +148,15 @@ export default function DashboardNavbar() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="md:hidden border-t border-zinc-800 bg-black"
+                        className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black"
                     >
                         <div className="flex flex-col p-4 gap-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-semibold">
-                                    {userName?.[0]?.toUpperCase() || 'U'}
-                                </div>
+                            <div className="flex items-center gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+                                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-cyan-500 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">M</span>
+                        </div>
                                 <div>
-                                    <p className="text-sm font-medium text-white">{userName}</p>
+                                    <p className="text-sm font-medium text-zinc-900 dark:text-white">{userName}</p>
                                     <p className="text-xs text-zinc-500">Signed in</p>
                                 </div>
                             </div>
@@ -169,7 +169,7 @@ export default function DashboardNavbar() {
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
-                                        className={`flex items-center gap-3 text-sm font-medium p-2 rounded-lg transition-colors ${isActive ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-900'
+                                        className={`flex items-center gap-3 text-sm font-medium p-2 rounded-lg transition-colors ${isActive ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
@@ -181,7 +181,7 @@ export default function DashboardNavbar() {
                             <Link
                                 href="/dashboard/settings"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors"
+                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                             >
                                 <User className="w-4 h-4" />
                                 Settings
@@ -189,7 +189,7 @@ export default function DashboardNavbar() {
 
                             <button
                                 onClick={handleSignOut}
-                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-red-400 hover:bg-zinc-900 transition-colors"
+                                className="flex items-center gap-3 text-sm font-medium p-2 rounded-lg text-red-500 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                             >
                                 Sign Out
                             </button>

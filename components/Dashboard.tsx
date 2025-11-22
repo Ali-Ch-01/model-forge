@@ -54,13 +54,13 @@ export default function Dashboard({ recommendations }: DashboardProps) {
                         >
                             {/* Architecture Diagram */}
                             <section aria-labelledby="architecture-heading">
-                                <h3 id="architecture-heading" className="text-lg font-semibold text-zinc-300 mb-3">Architecture Diagram</h3>
+                                <h3 id="architecture-heading" className="text-lg font-semibold text-zinc-900 dark:text-zinc-300 mb-3">Architecture Diagram</h3>
                                 <ArchitectureDiagram chart={selectedModel.architectureDiagram} />
                             </section>
 
                             {/* Code Generator */}
                             <section aria-labelledby="code-heading">
-                                <h3 id="code-heading" className="text-lg font-semibold text-zinc-300 mb-3">Training Code Boilerplate</h3>
+                                <h3 id="code-heading" className="text-lg font-semibold text-zinc-900 dark:text-zinc-300 mb-3">Training Code Boilerplate</h3>
                                 <CodeGenerator codeSnippets={selectedModel.trainingCode} />
                             </section>
                         </motion.div>

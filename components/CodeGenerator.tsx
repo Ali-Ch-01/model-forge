@@ -86,9 +86,9 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
     };
 
     return (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             <div
-                className="flex items-center justify-between px-4 py-3 bg-zinc-800/50 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/70 transition-colors"
+                className="flex items-center justify-between px-4 py-3 bg-zinc-50/50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-2">
@@ -96,9 +96,9 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                         animate={{ rotate: isExpanded ? 0 : -90 }}
                         transition={{ duration: 0.2 }}
                     >
-                        <ChevronDown className="w-5 h-5 text-zinc-400" />
+                        <ChevronDown className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
                     </motion.div>
-                    <span className="text-sm font-medium text-zinc-300">
+                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-300">
                         {isExpanded ? 'Hide' : 'Show'} Code Examples
                     </span>
                     <span className="text-xs text-zinc-500">
@@ -115,7 +115,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <div className="flex items-center justify-between px-4 py-2 bg-zinc-800/30 border-b border-zinc-800">
+                        <div className="flex items-center justify-between px-4 py-2 bg-zinc-50/30 dark:bg-zinc-800/30 border-b border-zinc-200 dark:border-zinc-800">
                             <div className="flex gap-2">
                                 {codeSnippets.map((snippet) => (
                                     <button
@@ -125,7 +125,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                             "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors uppercase",
                                             activeTab === snippet.framework
                                                 ? "bg-cyan-600 text-white"
-                                                : "text-zinc-400 hover:text-white hover:bg-zinc-700"
+                                                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                         )}
                                     >
                                         {snippet.framework}
@@ -135,7 +135,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                             <div className="flex items-center gap-1">
                                 <button
                                     onClick={handleCopy}
-                                    className="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-700"
+                                    className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                     title="Copy code"
                                     aria-label="Copy code to clipboard"
                                 >
@@ -143,7 +143,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                 </button>
                                 <button
                                     onClick={handleDownload}
-                                    className="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-700"
+                                    className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                     title="Download code"
                                     aria-label="Download code file"
                                 >
@@ -151,7 +151,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                 </button>
                                 <button
                                     onClick={handleCodeSandbox}
-                                    className="px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-700 rounded-lg transition-colors flex items-center gap-1.5 border border-zinc-700 hover:border-cyan-500"
+                                    className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-700 hover:border-cyan-500"
                                     title="Open in CodeSandbox"
                                     aria-label="Open code in CodeSandbox IDE"
                                 >
@@ -163,7 +163,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowThemeMenu(!showThemeMenu)}
-                                        className="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-700"
+                                        className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                         title="Change theme"
                                         aria-label="Select syntax highlighting theme"
                                     >
@@ -175,7 +175,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -10 }}
-                                                className="absolute right-0 mt-2 w-36 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-10"
+                                                className="absolute right-0 mt-2 w-36 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-10"
                                             >
                                                 {(Object.keys(themeNames) as Array<keyof typeof themeNames>).map((themeName) => (
                                                     <button
@@ -188,7 +188,7 @@ export default function CodeGenerator({ codeSnippets }: CodeGeneratorProps) {
                                                             "w-full text-left px-3 py-2 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg",
                                                             theme === themeName
                                                                 ? "bg-cyan-600 text-white"
-                                                                : "text-zinc-300 hover:bg-zinc-700"
+                                                                : "text-zinc-900 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                                                         )}
                                                     >
                                                         {themeNames[themeName]}

@@ -6,7 +6,7 @@ import { Check, X, Star, Heart, MessageSquare } from 'lucide-react';
 import { ModelRecommendation } from '@/lib/recommendationEngine';
 import ModelFeedbackModal from './ModelFeedbackModal';
 import { createClient } from '@/utils/supabase/client';
-import { saveModel, isModelSaved } from '@/lib/supabase-helpers';
+import { saveModel } from '@/lib/supabase-helpers';
 import { trackModelSave } from '@/lib/analytics';
 import { toast } from 'sonner';
 
@@ -51,17 +51,17 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
                 onClick={onClick}
                 className={`cursor-pointer p-6 rounded-2xl border transition-all duration-300 ${isSelected
                     ? 'bg-cyan-600/10 border-cyan-500 shadow-lg shadow-cyan-500/20'
-                    : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
+                    : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                     }`}
             >
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h3 className="text-xl font-bold text-white mb-1">{model.name}</h3>
-                        <p className="text-sm text-zinc-400 line-clamp-2">{model.description}</p>
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">{model.name}</h3>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">{model.description}</p>
                     </div>
-                    <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-lg">
+                    <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-lg">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-sm font-bold text-white">{model.suitabilityScore}%</span>
+                        <span className="text-sm font-bold text-zinc-900 dark:text-white">{model.suitabilityScore}%</span>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
                         disabled={isSaved}
                         className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${isSaved
                             ? 'bg-pink-600 text-white cursor-default'
-                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                             }`}
                     >
                         <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
@@ -79,7 +79,7 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
                     </button>
                     <button
                         onClick={handleFeedback}
-                        className="flex-1 px-3 py-2 rounded-lg text-sm font-medium bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 px-3 py-2 rounded-lg text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                     >
                         <MessageSquare className="w-4 h-4" />
                         Feedback
@@ -91,7 +91,7 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
                         <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Pros</h4>
                         <ul className="space-y-1">
                             {model.pros.map((pro, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-sm text-zinc-300">
+                                <li key={idx} className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-300">
                                     <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
                                     <span>{pro}</span>
                                 </li>
@@ -103,7 +103,7 @@ export default function ModelCard({ model, isSelected, onClick }: ModelCardProps
                         <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Cons</h4>
                         <ul className="space-y-1">
                             {model.cons.map((con, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-sm text-zinc-300">
+                                <li key={idx} className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-300">
                                     <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                                     <span>{con}</span>
                                 </li>

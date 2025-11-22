@@ -1,51 +1,36 @@
-'use client';
-
-import PageLayout from '@/components/PageLayout';
-import Link from 'next/link';
-import { Book, Code, Layers, Settings } from 'lucide-react';
-import { motion } from 'framer-motion';
+import StaticPage from '@/components/StaticPage';
 
 export default function DocsPage() {
     return (
-        <PageLayout title="Documentation" subtitle="Learn how to build with ModelForge.">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 not-prose">
-                {[
-                    { icon: Book, title: "Getting Started", desc: "Everything you need to know to generate your first model architecture.", color: "text-blue-500", hover: "group-hover:text-blue-400" },
-                    { icon: Code, title: "Code Generation", desc: "How to customize and export PyTorch, TensorFlow, and Scikit-learn code.", color: "text-emerald-500", hover: "group-hover:text-emerald-400" },
-                    { icon: Layers, title: "Architecture Diagrams", desc: "Understanding the visual components and exporting Mermaid.js diagrams.", color: "text-teal-500", hover: "group-hover:text-teal-400" },
-                    { icon: Settings, title: "Advanced Configuration", desc: "Fine-tuning constraints, latency requirements, and hardware targets.", color: "text-orange-500", hover: "group-hover:text-orange-400" }
-                ].map((item, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: i * 0.1 }}
-                        viewport={{ once: true }}
-                    >
-                        <Link href="#" className="block h-full group p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-blue-500/50 transition-all">
-                            <item.icon className={`w-8 h-8 ${item.color} mb-4`} />
-                            <h3 className={`text-xl font-bold text-white mb-2 ${item.hover} transition-colors`}>{item.title}</h3>
-                            <p className="text-zinc-400 text-sm">{item.desc}</p>
-                        </Link>
-                    </motion.div>
-                ))}
+        <StaticPage title="Documentation" lastUpdated="November 2025">
+            <p className="lead">Everything you need to know about using ModelForge.</p>
+            
+            <div className="grid md:grid-cols-2 gap-6 not-prose my-8">
+                <a href="#" className="block p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-colors group">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-blue-500 transition-colors">Getting Started</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Learn the basics of ModelForge, from account setup to your first model generation.</p>
+                </a>
+                <a href="#" className="block p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-colors group">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-blue-500 transition-colors">Model Architecture</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Deep dive into how our AI engine designs architectures for different tasks.</p>
+                </a>
+                <a href="#" className="block p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-colors group">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-blue-500 transition-colors">Code Export</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Guide to exporting and integrating generated code into your projects.</p>
+                </a>
+                <a href="#" className="block p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 transition-colors group">
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-blue-500 transition-colors">API Integration</h3>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Technical documentation for integrating ModelForge into your CI/CD pipelines.</p>
+                </a>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="mt-16"
-            >
-                <h2 className="text-2xl font-bold text-white mb-6">Popular Topics</h2>
-                <ul className="space-y-4 text-zinc-400">
-                    <li><Link href="#" className="hover:text-blue-400 transition-colors">How to specify custom constraints?</Link></li>
-                    <li><Link href="#" className="hover:text-blue-400 transition-colors">Integrating with AWS SageMaker</Link></li>
-                    <li><Link href="#" className="hover:text-blue-400 transition-colors">Exporting to ONNX format</Link></li>
-                    <li><Link href="#" className="hover:text-blue-400 transition-colors">Understanding the MLOps pipeline</Link></li>
-                </ul>
-            </motion.div>
-        </PageLayout>
+            <h2>Popular Topics</h2>
+            <ul>
+                <li><a href="#">How to fine-tune recommendations</a></li>
+                <li><a href="#">Supported frameworks and libraries</a></li>
+                <li><a href="#">Understanding suitability scores</a></li>
+                <li><a href="#">Exporting to ONNX</a></li>
+            </ul>
+        </StaticPage>
     );
 }

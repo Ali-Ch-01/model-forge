@@ -13,8 +13,8 @@ export const naturalLanguageSchema = z.object({
 
 // Schema for structured input
 export const structuredInputSchema = z.object({
-    dataType: z.enum(['image', 'text', 'tabular', 'audio', 'video', 'time_series', 'multimodal'], {
-        errorMap: () => ({ message: 'Please select a valid data type' }),
+    dataType: z.enum(['image', 'text', 'tabular', 'audio', 'video', 'time_series', 'multimodal'] as const, {
+        message: 'Please select a valid data type',
     }),
     taskType: z.enum([
         'classification',
@@ -25,23 +25,23 @@ export const structuredInputSchema = z.object({
         'forecasting',
         'anomaly_detection',
         'multimodal_reasoning'
-    ], {
-        errorMap: () => ({ message: 'Please select a valid task type' }),
+    ] as const, {
+        message: 'Please select a valid task type',
     }),
-    datasetSize: z.enum(['small', 'medium', 'large', 'very-large'], {
-        errorMap: () => ({ message: 'Please select a dataset size' }),
+    datasetSize: z.enum(['small', 'medium', 'large', 'very-large'] as const, {
+        message: 'Please select a dataset size',
     }),
-    deploymentTarget: z.enum(['cloud', 'edge', 'mobile', 'server'], {
-        errorMap: () => ({ message: 'Please select a deployment target' }),
+    deploymentTarget: z.enum(['cloud', 'edge', 'mobile', 'server'] as const, {
+        message: 'Please select a deployment target',
     }),
-    performanceRequirement: z.enum(['speed', 'accuracy', 'balanced'], {
-        errorMap: () => ({ message: 'Please select a performance requirement' }),
+    performanceRequirement: z.enum(['speed', 'accuracy', 'balanced'] as const, {
+        message: 'Please select a performance requirement',
     }),
-    framework: z.enum(['pytorch', 'tensorflow', 'sklearn', 'no-preference'], {
-        errorMap: () => ({ message: 'Please select a preferred framework' }),
+    framework: z.enum(['pytorch', 'tensorflow', 'sklearn', 'no-preference'] as const, {
+        message: 'Please select a preferred framework',
     }).optional(),
-    budget: z.enum(['low', 'medium', 'high'], {
-        errorMap: () => ({ message: 'Please select a budget constraint' }),
+    budget: z.enum(['low', 'medium', 'high'] as const, {
+        message: 'Please select a budget constraint',
     }).optional(),
 });
 
