@@ -45,7 +45,7 @@ def launch_mlflow_ui():
     print("\nIn the UI you can:")
     print("  • Compare all 5 models side-by-side")
     print("  • View detailed metrics for each run")
-    print("  • See the winning model (Qwen 2.7 7B)")
+    print("  • See the winning model (Qwen2.5-72B)")
     print("  • Explore 47 experiment runs")
     print("\nPress Ctrl+C to stop the server\n")
     

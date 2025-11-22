@@ -87,20 +87,20 @@ stages:
       - models/mistral_7b/metrics.json:
           cache: false
 
-  # Stage 6: Model Training - Qwen 2.7 7B (SELECTED)
+  # Stage 6: Model Training - Qwen2.5-72B (SELECTED)
   train_qwen:
-    cmd: python scripts/train_model.py --model qwen_2_7_7b
+    cmd: python scripts/train_model.py --model qwen2_5_72b
     deps:
       - data/processed/train.csv
       - scripts/train_model.py
       - scripts/models/qwen.py
     params:
-      - config/models.yaml:qwen_2_7_7b
+      - config/models.yaml:qwen2_5_72b
     outs:
-      - models/qwen_2_7_7b/model_checkpoint/
-      - models/qwen_2_7_7b/training_history.json
+      - models/qwen2_5_72b/model_checkpoint/
+      - models/qwen2_5_72b/training_history.json
     metrics:
-      - models/qwen_2_7_7b/metrics.json:
+      - models/qwen2_5_72b/metrics.json:
           cache: false
 
   # Stage 7: Model Evaluation - All Models
@@ -112,7 +112,7 @@ stages:
       - models/efficientnet_b0/model.pth
       - models/deepseek_llm/model_checkpoint/
       - models/mistral_7b/model_checkpoint/
-      - models/qwen_2_7_7b/model_checkpoint/
+      - models/qwen2_5_72b/model_checkpoint/
       - scripts/evaluate_all_models.py
     outs:
       - evaluation/comparison_report.json
@@ -151,13 +151,13 @@ stages:
 
   # Stage 9: Export Selected Model
   export_production:
-    cmd: python scripts/export_for_production.py --model qwen_2_7_7b
+    cmd: python scripts/export_for_production.py --model qwen2_5_72b
     deps:
-      - models/qwen_2_7_7b/model_checkpoint/
+      - models/qwen2_5_72b/model_checkpoint/
       - selected_model.json
       - scripts/export_for_production.py
     outs:
-      - production_model/qwen_2_7_7b_optimized.onnx
+      - production_model/qwen2_5_72b_optimized.onnx
       - production_model/model_config.json
       - production_model/deployment_instructions.md
 

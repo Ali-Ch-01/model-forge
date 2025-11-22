@@ -56,7 +56,7 @@ ModelForge is an intelligent recommendation engine that helps data scientists an
 - **Sonner** - Toast notifications
 
 ### **MLOps Integration**
-- **ModelForge Space** - Custom Hugging Face Space with Qwen 2.7 7B LLM
+- **ModelForge Space** - Custom Hugging Face Space with Qwen2.5-72B LLM
 - **MLflow** - Experiment tracking (used during model selection)
 - **DVC** - Data versioning (used during model selection)
 
@@ -64,7 +64,7 @@ ModelForge is an intelligent recommendation engine that helps data scientists an
 
 ## 🔬 MLOps Workflow
 
-This project includes a comprehensive **MLOps workflow** demonstrating how we selected the optimal model (Qwen 2.7 7B) through systematic experimentation.
+This project includes a comprehensive **MLOps workflow** demonstrating how we selected the optimal model (Qwen2.5-72B) through systematic experimentation.
 
 ### **Model Selection Process**
 Located in `/mlops-workflow/`, this folder contains:
@@ -74,9 +74,9 @@ Located in `/mlops-workflow/`, this folder contains:
 2. EfficientNet-B0 (Efficient CV model)
 3. DeepSeek LLM 67B (High-end reasoning)
 4. Mistral 7B (Balanced LLM)
-5. **Qwen 2.7 7B** ⭐ (Selected - Optimal balance)
+5. **Qwen2.5-72B** ⭐ (Selected - Optimal balance)
 
-**Why Qwen 2.7 7B?**
+**Why Qwen2.5-72B?**
 - 90.1% accuracy (only 2.2% behind best, 8.9x cheaper)
 - 196ms inference (31% faster than Mistral)
 - 32K context window (4x more than alternatives)

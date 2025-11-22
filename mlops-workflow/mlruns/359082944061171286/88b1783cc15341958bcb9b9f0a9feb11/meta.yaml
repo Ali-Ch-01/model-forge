@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Admin/Downloads/ModelForge/mlops-workflow/mlruns/359082944061171286/88b1783cc15341958bcb9b9f0a9feb11/artifacts
+end_time: 1763823085146
+entry_point_name: ''
+experiment_id: '359082944061171286'
+lifecycle_stage: active
+run_id: 88b1783cc15341958bcb9b9f0a9feb11
+run_name: ResNet-50
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763823085016
+status: 3
+tags: []
+user_id: Admin

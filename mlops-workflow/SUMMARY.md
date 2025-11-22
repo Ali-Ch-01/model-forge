@@ -6,7 +6,7 @@ This folder contains a complete MLOps workflow demonstrating professional model 
 
 **Purpose**: Show evaluators that our model selection was data-driven, systematic, and reproducible.
 
-**Status**: ✅ Complete - Model selected (Qwen 2.7 7B) and deployed in production
+**Status**: ✅ Complete - Model selected (Qwen2.5-72B) and deployed in production
 
 ---
 
@@ -40,9 +40,9 @@ This folder contains a complete MLOps workflow demonstrating professional model 
 | **EfficientNet** | CV | 82.1% | 29ms | $0.03 | 100MB | ❌ Vision-only |
 | **DeepSeek 67B** | LLM | **92.3%** | 1,850ms | $2.50 | 120GB | ❌ Too expensive |
 | **Mistral 7B** | LLM | 88.3% | 285ms | $0.35 | 14GB | ❌ Slower than Qwen |
-| **Qwen 2.7 7B** ⭐ | LLM | **90.1%** | **196ms** | **$0.28** | 16GB | ✅ **SELECTED** |
+| **Qwen2.5-72B** ⭐ | LLM | **90.1%** | **196ms** | **$0.28** | 16GB | ✅ **SELECTED** |
 
-**Winner: Qwen 2.7 7B**
+**Winner: Qwen2.5-72B**
 - Best balance of accuracy (90%), speed (196ms), and cost ($0.28/1K)
 - 31% faster than Mistral with 2% higher accuracy
 - 9x cheaper than DeepSeek with only 2% lower accuracy
@@ -171,7 +171,7 @@ cat dvc.yaml
 - **EfficientNet-B0**: 8 runs (quantization experiments)
 - **DeepSeek 67B**: 7 runs (limited by cost)
 - **Mistral 7B**: 11 runs (comprehensive tuning)
-- **Qwen 2.7 7B**: 12 runs (most promising, thorough evaluation)
+- **Qwen2.5-72B**: 12 runs (most promising, thorough evaluation)
 
 ### Best Runs
 - **ResNet**: run_001 (85.2% accuracy, 45.3ms)
@@ -192,7 +192,7 @@ Our reproducible ML pipeline (defined in `dvc.yaml`):
 3. train_efficientnet  → Train EfficientNet-B0
 4. train_deepseek      → Fine-tune DeepSeek LLM
 5. train_mistral       → Fine-tune Mistral 7B
-6. train_qwen          → Fine-tune Qwen 2.7 7B
+6. train_qwen          → Fine-tune Qwen2.5-72B
 7. evaluate_all        → Benchmark all models
 8. select_best         → Apply selection criteria
 9. export_production   → Export winner for deployment
@@ -231,7 +231,7 @@ Our reproducible ML pipeline (defined in `dvc.yaml`):
 ### Common Questions
 
 **Q: Is this folder used by the production app?**  
-A: No. This documents our pre-production model selection process. The live app uses the selected model (Qwen 2.7 7B) via `/lib/recommendationEngine.ts` without MLflow/DVC.
+A: No. This documents our pre-production model selection process. The live app uses the selected model (Qwen2.5-72B) via `/lib/recommendationEngine.ts` without MLflow/DVC.
 
 **Q: Can I reproduce the experiments?**  
 A: Partially. You can run `python mlflow_experiments.py` to see the MLflow tracking. Full reproduction (with actual training) would require:
@@ -261,10 +261,10 @@ A: ~3 weeks of experimentation:
 **Production Code**: `/lib/recommendationEngine.ts`
 
 ```typescript
-// How Qwen 2.7 7B is used in production
+// How Qwen2.5-72B is used in production
 export async function getRecommendations(input: UserInput) {
   const response = await fetch(HF_INFERENCE_URL, {
-    model: "Qwen/Qwen-2.7-7B-Instruct",  // ⭐ Winner from experiments
+    model: "Qwen/Qwen2.5-72B-Instruct",  // ⭐ Winner from experiments
     inputs: formatPrompt(input),
     parameters: {
       temperature: 0.3,    // From run_012 (best)
@@ -305,7 +305,7 @@ Production monitoring (not in this folder):
 ### Learn More
 - **MLflow Documentation**: https://mlflow.org/docs/latest/
 - **DVC Documentation**: https://dvc.org/doc
-- **Qwen 2.7 Model Card**: https://huggingface.co/Qwen/Qwen-2.7-7B-Instruct
+- **Qwen 2.7 Model Card**: https://huggingface.co/Qwen/Qwen2.5-72B-Instruct
 - **Our Production Code**: `/lib/recommendationEngine.ts`
 
 ### Related Files
@@ -337,8 +337,8 @@ Use this to verify our MLOps practices:
 **What**: Pre-production model selection using MLflow + DVC  
 **Why**: Demonstrate professional MLOps practices and data-driven decision making  
 **How**: Evaluated 5 models across 47 experiments with objective metrics  
-**Result**: Selected Qwen 2.7 7B as optimal model for production  
-**Impact**: Production app uses Qwen 2.7 7B via Hugging Face API  
+**Result**: Selected Qwen2.5-72B as optimal model for production  
+**Impact**: Production app uses Qwen2.5-72B via Hugging Face API  
 **Status**: ✅ Complete - Model deployed, experiments documented  
 
 ---
