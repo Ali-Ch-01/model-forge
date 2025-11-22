@@ -311,7 +311,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📧 Contact
 
-**Ali Hassan**  
+**Ali Mohsin**  
 📧 Email: your.email@example.com  
 🌐 Website: [yourwebsite.com](https://yourwebsite.com)  
 💼 LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
