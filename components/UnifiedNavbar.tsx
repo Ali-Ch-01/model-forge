@@ -122,6 +122,13 @@ export default function UnifiedNavbar({ variant = 'public' }: UnifiedNavbarProps
                     {/* Desktop Right Section */}
                     <div className="hidden md:flex items-center gap-3">
                         <ThemeToggle />
+                        <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700" />
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {userName.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{userName}</span>
+                        </div>
                         <button
                             onClick={handleSignOut}
                             className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
@@ -151,6 +158,9 @@ export default function UnifiedNavbar({ variant = 'public' }: UnifiedNavbarProps
                     >
                         <div className="flex flex-col p-4 gap-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-base">
+                                    {userName.charAt(0).toUpperCase()}
+                                </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-white">{userName}</p>
                                     <p className="text-xs text-zinc-500">Signed in</p>
