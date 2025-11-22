@@ -1,0 +1,65 @@
+# MLOps Dependencies
+# These are ONLY needed for running the model selection experiments
+# NOT required for production application
+
+# Experiment Tracking
+mlflow==2.9.2
+mlflow-skinny==2.9.2
+
+# Data Versioning
+dvc==3.40.0
+dvc[s3]==3.40.0
+
+# ML Frameworks
+torch==2.1.2
+torchvision==0.16.2
+transformers==4.36.2
+accelerate==0.25.0
+peft==0.7.1
+bitsandbytes==0.41.3
+
+# Hugging Face
+huggingface-hub==0.20.2
+tokenizers==0.15.0
+datasets==2.16.1
+
+# Model Optimization
+onnx==1.15.0
+onnxruntime==1.16.3
+optimum==1.16.1
+
+# Data Processing
+numpy==1.24.4
+pandas==2.1.4
+scipy==1.11.4
+scikit-learn==1.3.2
+
+# Visualization & Analysis
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.18.0
+
+# Jupyter for Analysis
+jupyter==1.0.0
+notebook==7.0.6
+ipykernel==6.28.0
+ipywidgets==8.1.1
+
+# Utilities
+pyyaml==6.0.1
+python-dotenv==1.0.0
+tqdm==4.66.1
+rich==13.7.0
+typer==0.9.0
+
+# Cloud Storage (for DVC)
+boto3==1.34.12
+s3fs==2023.12.2
+
+# Monitoring
+psutil==5.9.6
+gputil==1.4.0
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0

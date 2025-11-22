@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Admin/Downloads/ModelForge/mlops-workflow/mlruns/359082944061171286/ed7c11d17e604ee5a6097e78555df84a/artifacts
+end_time: 1763823085373
+entry_point_name: ''
+experiment_id: '359082944061171286'
+lifecycle_stage: active
+run_id: ed7c11d17e604ee5a6097e78555df84a
+run_name: EfficientNet-B0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763823085161
+status: 3
+tags: []
+user_id: Admin

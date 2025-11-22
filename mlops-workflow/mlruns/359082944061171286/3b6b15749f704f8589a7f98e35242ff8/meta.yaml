@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Admin/Downloads/ModelForge/mlops-workflow/mlruns/359082944061171286/3b6b15749f704f8589a7f98e35242ff8/artifacts
+end_time: 1763823085545
+entry_point_name: ''
+experiment_id: '359082944061171286'
+lifecycle_stage: active
+run_id: 3b6b15749f704f8589a7f98e35242ff8
+run_name: DeepSeek-LLM-67B
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763823085415
+status: 3
+tags: []
+user_id: Admin

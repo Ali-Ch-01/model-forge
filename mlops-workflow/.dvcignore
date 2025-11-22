@@ -1,0 +1,56 @@
+# DVC Ignore File
+# Add patterns of files that DVC should ignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# MLflow artifacts (tracked separately)
+mlruns/.trash/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Model cache files (we track main checkpoints only)
+*.cache
+*_cache/
+
+# Large temporary outputs
+scratch/
+debug_outputs/
+
+# Git files
+.git/
+.gitignore
+.gitattributes

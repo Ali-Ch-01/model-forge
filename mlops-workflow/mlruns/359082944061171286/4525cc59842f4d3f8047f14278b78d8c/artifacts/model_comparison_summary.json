@@ -1,0 +1,8 @@
+{
+  "total_models_evaluated": 5,
+  "winner": "Qwen2.5-72B-Instruct",
+  "selection_criteria": "Best balance of accuracy, speed, and cost",
+  "accuracy_leader": "DeepSeek-LLM",
+  "speed_leader": "EfficientNet-B0",
+  "cost_leader": "EfficientNet-B0"
+}

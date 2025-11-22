@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Admin/Downloads/ModelForge/mlops-workflow/mlruns/359082944061171286/9d00a90f19f948659ef2578d8c82501b/artifacts
+end_time: 1763823085816
+entry_point_name: ''
+experiment_id: '359082944061171286'
+lifecycle_stage: active
+run_id: 9d00a90f19f948659ef2578d8c82501b
+run_name: Qwen2.5-72B-Instruct ⭐
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763823085688
+status: 3
+tags: []
+user_id: Admin

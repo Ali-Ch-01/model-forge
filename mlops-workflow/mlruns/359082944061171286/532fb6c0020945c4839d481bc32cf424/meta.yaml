@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Admin/Downloads/ModelForge/mlops-workflow/mlruns/359082944061171286/532fb6c0020945c4839d481bc32cf424/artifacts
+end_time: 1763823085676
+entry_point_name: ''
+experiment_id: '359082944061171286'
+lifecycle_stage: active
+run_id: 532fb6c0020945c4839d481bc32cf424
+run_name: Mistral-7B-Instruct
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1763823085563
+status: 3
+tags: []
+user_id: Admin

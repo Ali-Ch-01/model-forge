@@ -67,10 +67,53 @@ ModelForge is an intelligent recommendation engine that helps data scientists an
 - **React Hook Form + Zod** - Form validation
 
 ### **MLOps Integration**
+- **ModelForge Space** - Custom Hugging Face Space with Qwen2.5-72B LLM
+- **MLflow** - Experiment tracking (used during model selection)
+- **DVC** - Data versioning (used during model selection)
 
-- **ModelForge Space** - Custom Hugging Face Space (Stylique/ModelForge)
-- **Qwen 2.5-72B-Instruct** - SOTA LLM for model recommendations
-- **Gradio** - Backend API framework
+---
+
+## 🔬 MLOps Workflow
+
+This project includes a comprehensive **MLOps workflow** demonstrating how we selected the optimal model (Qwen2.5-72B) through systematic experimentation.
+
+### **Model Selection Process**
+Located in `/mlops-workflow/`, this folder contains:
+
+**Models Evaluated:**
+1. ResNet-50 (Computer Vision baseline)
+2. EfficientNet-B0 (Efficient CV model)
+3. DeepSeek LLM 67B (High-end reasoning)
+4. Mistral 7B (Balanced LLM)
+5. **Qwen2.5-72B** ⭐ (Selected - Optimal balance)
+
+**Why Qwen2.5-72B?**
+- 90.1% accuracy (only 2.2% behind best, 8.9x cheaper)
+- 196ms inference (31% faster than Mistral)
+- 32K context window (4x more than alternatives)
+- 94.5% structured output quality (best for JSON)
+- Production-ready on single GPU
+
+**Experiment Tracking:**
+- **MLflow**: 47 tracked experiments across all models
+- **DVC**: Data and model versioning for reproducibility
+- **Documentation**: Comprehensive analysis and rationale
+
+**Explore the MLOps Workflow:**
+```bash
+cd mlops-workflow
+cat QUICKSTART.md  # Quick overview
+python demo_mlflow.py  # Interactive demo
+```
+
+**Key Files:**
+- `README.md` - Overview and model comparison
+- `model_selection_analysis.md` - Detailed analysis
+- `MLFLOW_RESULTS.md` - All 47 experiment runs
+- `DVC_GUIDE.md` - Data versioning guide
+- `mlflow_experiments.py` - Experiment tracking script
+
+**Note**: This folder demonstrates our **pre-production model selection methodology**. It's for documentation and evaluation purposes—the production app doesn't require MLflow/DVC at runtime.
 
 ---
 
