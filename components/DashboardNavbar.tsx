@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, History, Heart, User, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, History, Heart, User, ChevronDown, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -153,8 +153,8 @@ export default function DashboardNavbar() {
                         <div className="flex flex-col p-4 gap-4">
                             <div className="flex items-center gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
                                 <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-cyan-500 flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">M</span>
-                        </div>
+                                    <Sparkles className="w-5 h-5 text-white" />
+                                </div>
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900 dark:text-white">{userName}</p>
                                     <p className="text-xs text-zinc-500">Signed in</p>

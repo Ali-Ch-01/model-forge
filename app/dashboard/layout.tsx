@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import DashboardNavbar from '@/components/DashboardNavbar'
+import UnifiedNavbar from '@/components/UnifiedNavbar';
 
 export default async function DashboardLayout({
     children,
@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
-            <DashboardNavbar />
+            <UnifiedNavbar variant="dashboard" />
             <main>{children}</main>
         </div>
     )

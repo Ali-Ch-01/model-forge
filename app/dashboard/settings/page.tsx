@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Settings, Save, Bell, Moon, Database, Cpu } from 'lucide-react';
+import { Settings, Save, Bell, Moon, Database, Cpu, User } from 'lucide-react';
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [userName, setUserName] = useState('User');
+    const [userEmail, setUserEmail] = useState('');
     const [preferences, setPreferences] = useState({
         theme: 'dark',
         notifications_enabled: true,
@@ -20,6 +22,11 @@ export default function SettingsPage() {
         const fetchSettings = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
+
+            // Set user info
+            const fullName = user.user_metadata?.full_name;
+            setUserName(fullName || user.email?.split('@')[0] || 'User');
+            setUserEmail(user.email || '');
 
             const { data, error } = await supabase
                 .from('user_preferences')
@@ -39,7 +46,7 @@ export default function SettingsPage() {
         };
 
         fetchSettings();
-    }, []);
+    }, [supabase]);
 
     const handleSave = async () => {
         setSaving(true);
@@ -74,6 +81,20 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
                 </div>
                 <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Settings</h1>
+            </div>
+
+            {/* User Profile Section */}
+            <div className="mb-8 p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Profile</h2>
+                <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
+                        {userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">{userName}</h3>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{userEmail}</p>
+                    </div>
+                </div>
             </div>
 
             <div className="space-y-6">
